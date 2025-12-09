@@ -1,7 +1,7 @@
 import { API_CONFIG } from './apiConfig';
 
 export class NotificationService {
-  private static readonly BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-be5d.up.railway.app/api';
+  private static readonly BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-ca5d2.up.railway.app/api';
 
   /**
    * Send new signup notification to admin

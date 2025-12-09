@@ -19,7 +19,7 @@ export interface GeneratedScript {
 }
 
 export class ContentGenerationService {
-  private static readonly API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-be5d.up.railway.app/api';
+  private static readonly API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-ca5d2.up.railway.app/api';
 
   // Script generation is handled by the backend API using TinyLlama
   private static async callBackendAPI(request: ScriptRequest): Promise<GeneratedScript> {

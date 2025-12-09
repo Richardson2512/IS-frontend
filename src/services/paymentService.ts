@@ -4,7 +4,7 @@
  * Uses backend API for secure payment processing
  */
 
-const BACKEND_API_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-be5d.up.railway.app/api';
+const BACKEND_API_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-ca5d2.up.railway.app/api';
 
 export interface PaymentPlan {
   id: string;
