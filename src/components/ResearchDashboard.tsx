@@ -62,6 +62,31 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
     MetaPixelService.trackPageView('research-dashboard');
   }, []);
 
+  // Fetch popular keywords when component mounts or period changes
+  useEffect(() => {
+    const fetchPopularKeywords = async () => {
+      setLoadingPopularKeywords(true);
+      try {
+        const keywords = await SearchHistoryService.getPopularKeywords(popularKeywordsPeriod, 10);
+        setPopularKeywords(keywords);
+      } catch (error) {
+        console.error('Error fetching popular keywords:', error);
+        // Fallback to default keywords if fetch fails
+        setPopularKeywords([
+          { query: 'fitness motivation', count: 0 },
+          { query: 'remote work tips', count: 0 },
+          { query: 'digital marketing', count: 0 },
+          { query: 'mental health', count: 0 },
+          { query: 'content creation', count: 0 }
+        ]);
+      } finally {
+        setLoadingPopularKeywords(false);
+      }
+    };
+
+    fetchPopularKeywords();
+  }, [popularKeywordsPeriod]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [timeFilter, setTimeFilter] = useState('week');
@@ -79,6 +104,9 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
+  const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
+  const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
 
   const userTier = user?.subscription_tier || 'free';
   const tierLimits = SearchService.getTierLimits(userTier);
@@ -776,33 +804,82 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         {/* Keyword Suggestions */}
         {!isLoading && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Keywords</h3>
-          <div className="flex flex-wrap gap-3 justify-center">
-            {[
-              'fitness motivation',
-              'remote work tips',
-              'digital marketing',
-              'mental health',
-              'content creation'
-            ].map((keyword) => (
-              <button
-                key={keyword}
-                onClick={() => {
-                  setSearchQuery(keyword);
-                  // Optional: Auto-focus the search input after setting the term
-                  setTimeout(() => {
-                    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
-                    if (searchInput) {
-                      searchInput.focus();
-                    }
-                  }, 100);
-                }}
-                className="px-6 py-3 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-700 rounded-full text-sm font-medium transition-colors border hover:border-indigo-200 shadow-sm"
-              >
-                {keyword}
-              </button>
-            ))}
-          </div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Popular Keywords</h3>
+              
+              {/* Period Filter Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPopularKeywordsPeriod('day')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                    popularKeywordsPeriod === 'day'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Today
+                </button>
+                <button
+                  onClick={() => setPopularKeywordsPeriod('week')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                    popularKeywordsPeriod === 'week'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  This Week
+                </button>
+                <button
+                  onClick={() => setPopularKeywordsPeriod('month')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                    popularKeywordsPeriod === 'month'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  This Month
+                </button>
+              </div>
+            </div>
+
+            {loadingPopularKeywords ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader className="w-5 h-5 animate-spin text-indigo-600" />
+                <span className="ml-2 text-gray-600 text-sm">Loading popular keywords...</span>
+              </div>
+            ) : popularKeywords.length > 0 ? (
+              <div className="flex flex-wrap gap-3 justify-center">
+                {popularKeywords.map((keyword) => (
+                  <button
+                    key={keyword.query}
+                    onClick={() => {
+                      setSearchQuery(keyword.query);
+                      // Optional: Auto-focus the search input after setting the term
+                      setTimeout(() => {
+                        const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+                        if (searchInput) {
+                          searchInput.focus();
+                        }
+                      }, 100);
+                    }}
+                    className="px-6 py-3 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-700 rounded-full text-sm font-medium transition-colors border hover:border-indigo-200 shadow-sm flex items-center gap-2"
+                    title={`Searched ${keyword.count} time${keyword.count !== 1 ? 's' : ''}`}
+                  >
+                    {keyword.query}
+                    {keyword.count > 0 && (
+                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">
+                        {keyword.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <p>No popular keywords found for this period.</p>
+                <p className="text-sm mt-2">Try a different time period or start searching!</p>
+              </div>
+            )}
           </div>
         )}
 

@@ -143,6 +143,68 @@ export class SearchHistoryService {
   }
 
   /**
+   * Get popular keywords filtered by time period
+   */
+  static async getPopularKeywords(
+    period: 'day' | 'week' | 'month' = 'week',
+    limit: number = 10
+  ): Promise<Array<{ query: string; count: number }>> {
+    try {
+      // Calculate start date based on period
+      const startDate = new Date();
+      switch (period) {
+        case 'day':
+          startDate.setDate(startDate.getDate() - 1);
+          break;
+        case 'week':
+          startDate.setDate(startDate.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setMonth(startDate.getMonth() - 1);
+          break;
+      }
+
+      // Fetch searches within the time period
+      const { data, error } = await supabase
+        .from('search_history')
+        .select('search_query')
+        .gte('created_at', startDate.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ Error fetching popular keywords:', error);
+        return [];
+      }
+
+      // Aggregate by search query (case-insensitive)
+      const keywordCounts = (data || []).reduce((acc: Record<string, { query: string; count: number }>, item: any) => {
+        const normalizedQuery = item.search_query?.trim();
+        if (!normalizedQuery) return acc;
+
+        // Use lowercase for grouping but keep original for display
+        const key = normalizedQuery.toLowerCase();
+        if (!acc[key]) {
+          acc[key] = {
+            query: normalizedQuery, // Keep original casing
+            count: 0
+          };
+        }
+        acc[key].count++;
+        return acc;
+      }, {});
+
+      // Convert to array, sort by count, and return top results
+      return Object.values(keywordCounts)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, limit);
+
+    } catch (error) {
+      console.error('❌ Exception fetching popular keywords:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get search analytics
    */
   static async getSearchAnalytics(days: number = 7): Promise<any> {
