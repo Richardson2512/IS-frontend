@@ -32,7 +32,12 @@ const RelevanceRating: React.FC<RelevanceRatingProps> = ({
     setError(null);
 
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-ca5d2.up.railway.app/api';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      if (!backendUrl) {
+        setError('Backend URL is not configured. Please set VITE_BACKEND_URL in your environment variables.');
+        setIsSubmitting(false);
+        return;
+      }
       const apiUrl = backendUrl.endsWith('/api') 
         ? `${backendUrl}/ratings/submit`
         : `${backendUrl}/api/ratings/submit`;

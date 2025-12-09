@@ -45,7 +45,7 @@ Create a `.env` file in the root directory:
 
 ```env
 # Backend API URL
-VITE_BACKEND_URL=https://backend-production-ca5d2.up.railway.app/api
+VITE_BACKEND_URL=https://your-backend-url.up.railway.app/api
 
 # Meta Pixel ID (for analytics)
 VITE_META_PIXEL_ID=782862880877552

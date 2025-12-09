@@ -53,7 +53,13 @@ export interface FocusedSearchResponse {
 }
 
 export class SearchService {
-  private static readonly API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-ca5d2.up.railway.app/api';
+  private static readonly API_BASE_URL = (() => {
+    const url = import.meta.env.VITE_BACKEND_URL;
+    if (!url) {
+      throw new Error('VITE_BACKEND_URL environment variable is not set. Please configure it in your .env file.');
+    }
+    return url;
+  })();
 
   static async performSearch(params: SearchParams, options?: SearchOptions): Promise<SearchResponse> {
     try {

@@ -1,7 +1,13 @@
 import { API_CONFIG } from './apiConfig';
 
 export class NotificationService {
-  private static readonly BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://backend-production-ca5d2.up.railway.app/api';
+  private static readonly BACKEND_URL = (() => {
+    const url = import.meta.env.VITE_BACKEND_URL;
+    if (!url) {
+      throw new Error('VITE_BACKEND_URL environment variable is not set. Please configure it in your .env file.');
+    }
+    return url;
+  })();
 
   /**
    * Send new signup notification to admin
