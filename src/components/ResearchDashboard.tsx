@@ -58,6 +58,27 @@ interface ResearchDashboardProps {
 const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   onHome, onContact, onBlog, onLogin, onSignUp, user, searchCount, onSearchLimitReached, onPrivacyPolicy, onTermsAndConditions, onSearchPerformed, onSignOut, onShowResults, onPricing
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [timeFilter, setTimeFilter] = useState('week');
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['reddit', 'x', 'youtube', 'linkedin', 'threads']);
+  const [results, setResults] = useState<AnalyzedResults | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [showTimeDropdown, setShowTimeDropdown] = useState(false);
+  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
+  const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
+  const [keyboardLanguage, setKeyboardLanguage] = useState('en');
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const [virtualText, setVirtualText] = useState('');
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+  const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
+  const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
+  const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
+
   useEffect(() => {
     MetaPixelService.trackPageView('research-dashboard');
   }, []);
@@ -86,27 +107,6 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
 
     fetchPopularKeywords();
   }, [popularKeywordsPeriod]);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
-  const [timeFilter, setTimeFilter] = useState('week');
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['reddit', 'x', 'youtube', 'linkedin', 'threads']);
-  const [results, setResults] = useState<AnalyzedResults | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const [showTimeDropdown, setShowTimeDropdown] = useState(false);
-  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
-  const [showKeyboardSettings, setShowKeyboardSettings] = useState(false);
-  const [keyboardLanguage, setKeyboardLanguage] = useState('en');
-  const [showKeyboard, setShowKeyboard] = useState(false);
-  const [virtualText, setVirtualText] = useState('');
-  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
-  const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
-  const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
-  const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
 
   const userTier = user?.subscription_tier || 'free';
   const tierLimits = SearchService.getTierLimits(userTier);
