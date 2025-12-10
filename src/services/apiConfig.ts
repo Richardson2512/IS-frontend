@@ -53,15 +53,20 @@ export interface SearchParams {
   platforms: string[];
 }
 
+export type Platform = 'reddit' | 'x' | 'youtube' | 'linkedin' | 'threads' | 'tiktok' | 'instagram' | 'pinterest' | 'google';
+export type AdPlatform = 'facebook' | 'linkedin' | 'google' | 'reddit' | 'tiktok_shop';
+
 export interface SocialPost {
   id: string;
   content: string;
-  platform: 'reddit' | 'x' | 'youtube' | 'linkedin' | 'threads';
+  platform: Platform | AdPlatform;
   source: string;
   engagement: number;
   timestamp: string;
   url?: string;
   author?: string;
+  type?: 'post' | 'ad';
+  thumbnail?: string;
 }
 
 export interface AnalyzedResults {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Sparkles, Search } from 'lucide-react';
+import { Sparkles, Search, MonitorPlay } from 'lucide-react';
 import { EnhancedResearchDashboard } from './EnhancedResearchDashboard';
 import ResearchDashboard from './ResearchDashboard';
+import { AdSearchDashboard } from './AdSearch/AdSearchDashboard';
 
 interface User {
   id: string;
@@ -28,6 +29,8 @@ interface MultiStepSearchToggleProps {
   searchCount: number;
 }
 
+type ViewMode = 'standard' | 'enhanced' | 'ads';
+
 export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
   onHome,
   onContact,
@@ -44,9 +47,18 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
   user,
   searchCount
 }) => {
-  const [useEnhancedSearch, setUseEnhancedSearch] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('standard');
 
-  if (useEnhancedSearch) {
+  if (viewMode === 'ads') {
+    return (
+      <AdSearchDashboard 
+        onBack={() => setViewMode('standard')} 
+        userTier={user?.subscription_tier} 
+      />
+    );
+  }
+
+  if (viewMode === 'enhanced') {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Enhanced Search Header */}
@@ -55,7 +67,7 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
             <div className="flex items-center justify-between py-4">
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={() => setUseEnhancedSearch(false)}
+                  onClick={() => setViewMode('standard')}
                   className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   ← Back to Standard Search
@@ -102,9 +114,9 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
             console.log('Enhanced search completed:', results);
             // Convert to the format expected by onShowResults
             const formattedResults = {
-              painPoints: results.results || [],
-              trendingIdeas: [],
-              contentIdeas: []
+              painPoints: results.results?.painPoints || results.results || [],
+              trendingIdeas: results.results?.trendingIdeas || [],
+              contentIdeas: results.results?.contentIdeas || []
             };
             onShowResults(formattedResults, results.metadata?.expandedQuery || '');
           }}
@@ -115,7 +127,41 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
 
   return (
     <div>
-      {/* Original Research Dashboard - Now with Enhanced Search integrated */}
+      {/* Mode Selection Header */}
+      <div className="bg-white border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center space-x-8 py-3">
+            <button
+              onClick={() => setViewMode('standard')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'standard' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Search className="w-4 h-4" />
+              <span className="font-medium">Content Search</span>
+            </button>
+            <button
+              onClick={() => setViewMode('ads')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'ads' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <MonitorPlay className="w-4 h-4" />
+              <span className="font-medium">Ad Intelligence</span>
+            </button>
+            <button
+              onClick={() => setViewMode('enhanced')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                viewMode === 'enhanced' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="font-medium">Enhanced AI Search</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <ResearchDashboard
         onHome={onHome}
         onContact={onContact}

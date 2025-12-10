@@ -1,4 +1,4 @@
-import { SearchParams, AnalyzedResults, getBackendApiUrl } from './apiConfig';
+import { SearchParams, AnalyzedResults, getBackendApiUrl, AdPlatform } from './apiConfig';
 
 export interface SearchOptions {
   userTier?: 'free' | 'standard' | 'pro';
@@ -17,6 +17,11 @@ export interface SearchResponse {
     };
     [key: string]: any;
   };
+}
+
+export interface AdSearchResponse {
+  ads: any[];
+  metadata?: any;
 }
 
 export interface QueryExpansionResponse {
@@ -135,6 +140,39 @@ export class SearchService {
       console.error('❌ Search error:', error);
       
       // Re-throw error with user-friendly message
+      throw error;
+    }
+  }
+
+  // New method: Perform ad search
+  static async performAdSearch(query: string, platforms: AdPlatform[], options?: SearchOptions): Promise<AdSearchResponse> {
+    try {
+      console.log('🔍 Starting ad search for:', query);
+      console.log('🎯 Platforms:', platforms);
+      
+      const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+      const response = await fetch(`${apiUrl}/search/ads`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query,
+          platforms,
+          userTier: options?.userTier || 'free'
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Ad search failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+
+    } catch (error) {
+      console.error('❌ Ad search error:', error);
       throw error;
     }
   }
