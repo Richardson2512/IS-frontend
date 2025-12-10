@@ -423,14 +423,14 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
           selectedSubtopic={selectedSubtopic!}
           onSelectCategory={handleCategorySelection}
         />
-
-        <Footer 
-          onContact={onContact}
-          onBlog={onBlog}
-          onPrivacyPolicy={onPrivacyPolicy}
-          onTermsAndConditions={onTermsAndConditions}
-        />
       </div>
+
+      <Footer 
+        onContact={onContact}
+        onBlog={onBlog}
+        onPrivacyPolicy={onPrivacyPolicy}
+        onTermsAndConditions={onTermsAndConditions}
+      />
     </div>
   );
 };

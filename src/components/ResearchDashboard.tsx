@@ -27,6 +27,7 @@ import { SearchParams, AnalyzedResults, SocialPost } from '../services/apiConfig
 import { SearchHistoryService } from '../services/searchHistoryService';
 import { MetaPixelService } from '../services/metaPixelService';
 import { EnhancedSearchBar } from './EnhancedSearchBar';
+import { PlatformStatsBar } from './PlatformStatsBar';
 import { Footer } from './Footer';
 
 interface ResearchDashboardProps {
