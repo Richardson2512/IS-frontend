@@ -38,8 +38,7 @@ function App() {
     }
     // Check if it's a blog post (starts with 'blog/')
     if (path.startsWith('/blog/')) {
-      const slug = path.replace('/blog/', '');
-      setCurrentBlogSlug(slug);
+      // Do not call setCurrentBlogSlug here; hooks not initialized yet
       return 'blog-post';
     }
     return 'landing';
@@ -123,6 +122,15 @@ function App() {
     tip: string;
   } | null>(null);
   
+  // Set blog slug after hooks are initialized to avoid accessing setters early
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/blog/')) {
+      const slug = path.replace('/blog/', '');
+      setCurrentBlogSlug(slug);
+    }
+  }, []);
+
 
   // Initialize app on mount
   useEffect(() => {
@@ -403,7 +411,7 @@ function App() {
       console.log('🧹 Cleaning up auth listener...');
       subscription?.unsubscribe();
     };
-  }, [showEmailVerification]); // Only include showEmailVerification in dependencies
+  }, [showEmailVerification, isRestoringState]); // Include restoring flag for latest state
 
   // Sync URL with stored view on mount and reset restoring state flag
   useEffect(() => {
