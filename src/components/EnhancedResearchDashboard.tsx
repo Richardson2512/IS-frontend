@@ -6,6 +6,7 @@ import { CategorySelectionModal } from './CategorySelectionModal';
 import ResultsPage from './ResultsPage';
 import { PlatformStatsBar } from './PlatformStatsBar';
 import { SearchHistoryService } from '../services/searchHistoryService';
+import { FilterBar } from './FilterBar';
 
 interface EnhancedResearchDashboardProps {
   onSearchComplete?: (results: any) => void;
@@ -46,6 +47,22 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
   const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
   const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
   const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['reddit', 'x', 'youtube', 'linkedin', 'threads']);
+  const [timeFilter, setTimeFilter] = useState('week');
+  const [language, setLanguage] = useState('en');
+  const platformOptions = [
+    { id: 'reddit', name: 'Reddit', logo: 'https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png' },
+    { id: 'x', name: 'X (Twitter)', logo: 'https://abs.twimg.com/favicons/twitter.2.ico' },
+    { id: 'youtube', name: 'YouTube', logo: 'https://www.youtube.com/s/desktop/favicon_48x48.png' },
+    { id: 'linkedin', name: 'LinkedIn', logo: 'https://static.licdn.com/scds/common/u/images/logos/favicons/v1/favicon.ico' },
+    { id: 'threads', name: 'Threads', logo: 'https://static.xx.fbcdn.net/rsrc.php/yb/r/hLRJ1GG_y0J.ico' }
+  ];
+
+  const handlePlatformToggle = (id: string) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
 
   const handleInitialSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -112,9 +129,9 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
         selectedSubtopic.expandedQuery,
         category,
         {
-          platforms: ['reddit', 'x', 'youtube', 'linkedin', 'threads'],
-          timeFilter: 'week',
-          language: 'en'
+          platforms: selectedPlatforms,
+          timeFilter,
+          language
         }
       );
 
@@ -239,6 +256,16 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
           <PlatformStatsBar />
 
+          <FilterBar
+            platforms={platformOptions}
+            selectedPlatforms={selectedPlatforms}
+            onTogglePlatform={handlePlatformToggle}
+            language={language}
+            onLanguageChange={setLanguage}
+            timeFilter={timeFilter}
+            onTimeFilterChange={setTimeFilter}
+          />
+
           <div className="bg-white shadow-sm border rounded-xl">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <div className="flex items-center space-x-4">
@@ -330,6 +357,16 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8">
         <PlatformStatsBar />
+
+        <FilterBar
+          platforms={platformOptions}
+          selectedPlatforms={selectedPlatforms}
+          onTogglePlatform={handlePlatformToggle}
+          language={language}
+          onLanguageChange={setLanguage}
+          timeFilter={timeFilter}
+          onTimeFilterChange={setTimeFilter}
+        />
 
         <div className="max-w-4xl mx-auto px-0 py-0 space-y-8">
           {/* Header */}

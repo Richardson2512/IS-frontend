@@ -5,6 +5,7 @@ import { AdPlatform } from '../../services/apiConfig';
 import { Footer } from '../Footer';
 import { PlatformStatsBar } from '../PlatformStatsBar';
 import { SearchHistoryService } from '../../services/searchHistoryService';
+import { FilterBar } from '../FilterBar';
 
 interface AdSearchDashboardProps {
   userTier?: 'free' | 'standard' | 'pro';
@@ -41,13 +42,15 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
   const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
   const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
   const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
+  const [timeFilter, setTimeFilter] = useState('week');
+  const [language, setLanguage] = useState('en');
 
-  const adPlatforms: { id: AdPlatform; name: string; icon: string }[] = [
-    { id: 'facebook', name: 'Facebook Ads', icon: 'f' },
-    { id: 'google', name: 'Google Ads', icon: 'G' },
-    { id: 'linkedin', name: 'LinkedIn Ads', icon: 'in' },
-    { id: 'reddit', name: 'Reddit Ads', icon: 'r' },
-    { id: 'tiktok_shop', name: 'TikTok Shop', icon: 'Tk' },
+  const adPlatforms: { id: AdPlatform; name: string; icon?: React.ReactNode; logo?: string }[] = [
+    { id: 'facebook', name: 'Facebook Ads', logo: 'https://www.facebook.com/images/fb_icon_325x325.png' },
+    { id: 'google', name: 'Google Ads', logo: 'https://www.google.com/favicon.ico' },
+    { id: 'linkedin', name: 'LinkedIn Ads', logo: 'https://static.licdn.com/scds/common/u/images/logos/favicons/v1/favicon.ico' },
+    { id: 'reddit', name: 'Reddit Ads', logo: 'https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png' },
+    { id: 'tiktok_shop', name: 'TikTok Shop', icon: <span className="text-xs font-bold">Tk</span> },
   ];
 
   const handleSearch = async () => {
@@ -58,7 +61,7 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
     setAds([]);
 
     try {
-      const results = await SearchService.performAdSearch(searchQuery, selectedPlatforms, { userTier });
+      const results = await SearchService.performAdSearch(searchQuery, selectedPlatforms, { userTier, timeFilter, language });
       setAds(results.ads || []);
     } catch (err: any) {
       setError(err.message || 'Failed to search ads. Please try again.');
@@ -141,6 +144,16 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8">
         <PlatformStatsBar />
 
+        <FilterBar
+          platforms={adPlatforms}
+          selectedPlatforms={selectedPlatforms}
+          onTogglePlatform={(id) => togglePlatform(id as AdPlatform)}
+          language={language}
+          onLanguageChange={setLanguage}
+          timeFilter={timeFilter}
+          onTimeFilterChange={setTimeFilter}
+        />
+
         {/* Search Bar */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col space-y-4">
@@ -161,26 +174,6 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
               </button>
-            </div>
-
-            {/* Platform Selection */}
-            <div className="flex flex-wrap gap-3">
-              {adPlatforms.map(platform => (
-                <button
-                  key={platform.id}
-                  onClick={() => togglePlatform(platform.id)}
-                  className={`flex items-center px-4 py-2 rounded-full border transition-all ${
-                    selectedPlatforms.includes(platform.id)
-                      ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
-                      : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-200 text-xs font-bold mr-2">
-                    {platform.icon}
-                  </span>
-                  {platform.name}
-                </button>
-              ))}
             </div>
           </div>
         </div>

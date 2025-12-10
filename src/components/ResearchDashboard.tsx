@@ -29,6 +29,8 @@ import { MetaPixelService } from '../services/metaPixelService';
 import { EnhancedSearchBar } from './EnhancedSearchBar';
 import { PlatformStatsBar } from './PlatformStatsBar';
 import { Footer } from './Footer';
+import { FilterBar } from './FilterBar';
+import { FilterBar } from './FilterBar';
 
 interface ResearchDashboardProps {
   onHome: () => void;
@@ -395,6 +397,26 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               </div>
             </div>
 
+            <FilterBar
+              platforms={platforms}
+              selectedPlatforms={selectedPlatforms}
+              onTogglePlatform={handlePlatformToggle}
+              language={selectedLanguage}
+              onLanguageChange={setSelectedLanguage}
+              timeFilter={timeFilter}
+              onTimeFilterChange={setTimeFilter}
+            />
+
+            <FilterBar
+              platforms={platforms}
+              selectedPlatforms={selectedPlatforms}
+              onTogglePlatform={handlePlatformToggle}
+              language={selectedLanguage}
+              onLanguageChange={setSelectedLanguage}
+              timeFilter={timeFilter}
+              onTimeFilterChange={setTimeFilter}
+            />
+
             {/* Enhanced Search Bar */}
             <EnhancedSearchBar
               searchQuery={searchQuery}
@@ -407,7 +429,6 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               onPlatformToggle={handlePlatformToggle}
               onSearch={(query) => {
                 setSearchQuery(query);
-                // Trigger search
               }}
               isLoading={isLoading}
               userTier={userTier}
