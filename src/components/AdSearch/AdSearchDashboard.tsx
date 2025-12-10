@@ -3,12 +3,33 @@ import { Search, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { SearchService } from '../../services/searchService';
 import { AdPlatform } from '../../services/apiConfig';
 
+import { Footer } from '../Footer';
+
 interface AdSearchDashboardProps {
   onBack: () => void;
   userTier?: 'free' | 'standard' | 'pro';
+  user: any;
+  onHome: () => void;
+  onContact: () => void;
+  onSignOut: () => void;
+  onBlog: () => void;
+  onPrivacyPolicy: () => void;
+  onTermsAndConditions: () => void;
+  searchCount?: number;
 }
 
-export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({ onBack, userTier = 'free' }) => {
+export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({ 
+  onBack, 
+  userTier = 'free',
+  user,
+  onHome,
+  onContact,
+  onSignOut,
+  onBlog,
+  onPrivacyPolicy,
+  onTermsAndConditions,
+  searchCount
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,26 +70,45 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({ onBack, us
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <button
-              onClick={onBack}
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              ← Back to Content Search
-            </button>
-            <div className="flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-indigo-600" />
-              <span className="font-semibold text-gray-900">Ad Intelligence</span>
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-2xl font-bold text-gray-900">Ad Intelligence</h1>
+              <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                <span>{user?.email}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs text-white ${
+                  userTier === 'pro' ? 'bg-indigo-600' : 
+                  userTier === 'standard' ? 'bg-blue-500' : 'bg-gray-500'
+                }`}>
+                  {userTier.toUpperCase()}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button onClick={onHome} className="text-gray-600 hover:text-gray-900">Home</button>
+              <button onClick={onContact} className="text-gray-600 hover:text-gray-900">Contact</button>
+              <button onClick={onSignOut} className="text-red-600 hover:text-red-700">Sign Out</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Sub-header for Back button */}
+      <div className="bg-white border-b border-gray-100">
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <button
+              onClick={onBack}
+              className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              ← Back to Content Search
+            </button>
+         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Search Bar */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex flex-col space-y-4">
@@ -164,6 +204,13 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({ onBack, us
           )
         )}
       </div>
+
+      <Footer 
+        onContact={onContact}
+        onBlog={onBlog}
+        onPrivacyPolicy={onPrivacyPolicy}
+        onTermsAndConditions={onTermsAndConditions}
+      />
     </div>
   );
 };

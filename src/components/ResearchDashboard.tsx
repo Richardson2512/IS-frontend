@@ -27,7 +27,7 @@ import { SearchParams, AnalyzedResults, SocialPost } from '../services/apiConfig
 import { SearchHistoryService } from '../services/searchHistoryService';
 import { MetaPixelService } from '../services/metaPixelService';
 import { EnhancedSearchBar } from './EnhancedSearchBar';
-import { PlatformStatsBar } from './PlatformStatsBar';
+import { Footer } from './Footer';
 
 interface ResearchDashboardProps {
   onHome: () => void;
@@ -355,7 +355,7 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Search Header */}
       <div className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -406,7 +406,7 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <PlatformStatsBar />
         
         {/* Popular Keywords Section */}
@@ -494,6 +494,13 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           </div>
         </div>
       </div>
+      
+      <Footer 
+        onContact={onContact}
+        onBlog={onBlog}
+        onPrivacyPolicy={onPrivacyPolicy}
+        onTermsAndConditions={onTermsAndConditions}
+      />
     </div>
   );
 };

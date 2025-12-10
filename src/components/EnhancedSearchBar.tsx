@@ -13,6 +13,10 @@ interface EnhancedSearchBarProps {
   onSearchPerformed?: () => void; // Add callback for search count update
   searchQuery?: string; // Add prop for external search query
   onSearchQueryChange?: (query: string) => void; // Add callback for query changes
+  searchCount?: number;
+  maxSearches?: number;
+  onShowResults?: (results: any, query: string) => void;
+  onSearchLimitReached?: () => void;
 }
 
 export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
@@ -22,7 +26,10 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   userTier,
   onSearchPerformed,
   searchQuery: externalSearchQuery,
-  onSearchQueryChange
+  onSearchQueryChange,
+  searchCount,
+  maxSearches,
+  onSearchLimitReached
 }) => {
   // Multi-step search state - Define all state first
   const [searchQuery, setSearchQuery] = useState(externalSearchQuery || '');
@@ -259,9 +266,20 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
     <>
       {/* Enhanced Search Input */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          What insights are you looking for?
-        </label>
+        <div className="flex justify-between items-end mb-2">
+          <label className="block text-sm font-medium text-gray-700">
+            What insights are you looking for?
+          </label>
+          {maxSearches !== undefined && searchCount !== undefined && (
+             <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+               searchCount >= maxSearches 
+                 ? 'bg-red-100 text-red-800' 
+                 : 'bg-indigo-50 text-indigo-700'
+             }`}>
+               Daily Searches: {searchCount} / {maxSearches}
+             </span>
+          )}
+        </div>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
           <p className="text-sm text-blue-800">
             <strong>💡 Tip:</strong> Search with <strong>one keyword at a time</strong> for best results (e.g., "AI marketing" instead of "AI marketing tools for social media")

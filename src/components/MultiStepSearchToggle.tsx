@@ -4,6 +4,8 @@ import { EnhancedResearchDashboard } from './EnhancedResearchDashboard';
 import ResearchDashboard from './ResearchDashboard';
 import { AdSearchDashboard } from './AdSearch/AdSearchDashboard';
 
+import { Footer } from './Footer';
+
 interface User {
   id: string;
   name: string;
@@ -49,79 +51,47 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('standard');
 
+  const commonProps = {
+    onHome,
+    onContact,
+    onBlog,
+    onLogin,
+    onSignUp,
+    onSignOut,
+    onPrivacyPolicy,
+    onTermsAndConditions,
+    onPricing,
+    user,
+    searchCount
+  };
+
   if (viewMode === 'ads') {
     return (
       <AdSearchDashboard 
         onBack={() => setViewMode('standard')} 
-        userTier={user?.subscription_tier} 
+        userTier={user?.subscription_tier}
+        {...commonProps}
       />
     );
   }
 
   if (viewMode === 'enhanced') {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Enhanced Search Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between py-4">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => setViewMode('standard')}
-                  className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  ← Back to Standard Search
-                </button>
-                <div className="h-6 w-px bg-gray-300" />
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
-                  <span className="font-semibold text-gray-900">Enhanced AI Search</span>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={onHome}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Home
-                </button>
-                <button
-                  onClick={onContact}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Contact
-                </button>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <span>{user?.email}</span>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
-                    {user?.subscription_tier}
-                  </span>
-                  <button
-                    onClick={onSignOut}
-                    className="text-red-600 hover:text-red-800 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <EnhancedResearchDashboard 
-          userTier={user?.subscription_tier || 'free'}
-          onSearchComplete={(results) => {
-            console.log('Enhanced search completed:', results);
-            // Convert to the format expected by onShowResults
-            const formattedResults = {
-              painPoints: results.results?.painPoints || results.results || [],
-              trendingIdeas: results.results?.trendingIdeas || [],
-              contentIdeas: results.results?.contentIdeas || []
-            };
-            onShowResults(formattedResults, results.metadata?.expandedQuery || '');
-          }}
-        />
-      </div>
+      <EnhancedResearchDashboard 
+        userTier={user?.subscription_tier || 'free'}
+        onSearchComplete={(results) => {
+          console.log('Enhanced search completed:', results);
+          // Convert to the format expected by onShowResults
+          const formattedResults = {
+            painPoints: results.results?.painPoints || results.results || [],
+            trendingIdeas: results.results?.trendingIdeas || [],
+            contentIdeas: results.results?.contentIdeas || []
+          };
+          onShowResults(formattedResults, results.metadata?.expandedQuery || '');
+        }}
+        onBack={() => setViewMode('standard')}
+        {...commonProps}
+      />
     );
   }
 

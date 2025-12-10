@@ -120,12 +120,12 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onAuthComplete }) => {
               // Send admin notification for Google signup (don't block auth flow)
               // Use setTimeout to ensure it doesn't block rendering
               setTimeout(() => {
-                NotificationService.notifyNewSignup({
-                  email: userData.email,
-                  name: userData.name,
-                  subscription_tier: 'free',
-                  signup_method: 'google'
-                }).catch(err => console.error('Failed to send signup notification:', err));
+              NotificationService.notifyNewSignup({
+                email: userData.email,
+                name: userData.name,
+                subscription_tier: 'free',
+                signup_method: 'google'
+              }).catch(err => console.error('Failed to send signup notification:', err));
               }, 0);
               
               console.log('🚀 Calling onAuthComplete...');
