@@ -4,8 +4,6 @@ import { EnhancedResearchDashboard } from './EnhancedResearchDashboard';
 import ResearchDashboard from './ResearchDashboard';
 import { AdSearchDashboard } from './AdSearch/AdSearchDashboard';
 
-import { Footer } from './Footer';
-
 interface User {
   id: string;
   name: string;
@@ -65,40 +63,57 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
     searchCount
   };
 
-  if (viewMode === 'ads') {
-    return (
-      <AdSearchDashboard 
-        onBack={() => setViewMode('standard')} 
-        userTier={user?.subscription_tier}
-        {...commonProps}
-      />
-    );
-  }
+  const renderDashboard = () => {
+    if (viewMode === 'ads') {
+      return (
+        <AdSearchDashboard 
+          userTier={user?.subscription_tier}
+          {...commonProps}
+        />
+      );
+    }
 
-  if (viewMode === 'enhanced') {
+    if (viewMode === 'enhanced') {
+      return (
+        <EnhancedResearchDashboard 
+          userTier={user?.subscription_tier || 'free'}
+          onSearchComplete={(results) => {
+            console.log('Enhanced search completed:', results);
+            const formattedResults = {
+              painPoints: results.results?.painPoints || results.results || [],
+              trendingIdeas: results.results?.trendingIdeas || [],
+              contentIdeas: results.results?.contentIdeas || []
+            };
+            onShowResults(formattedResults, results.metadata?.expandedQuery || '');
+          }}
+          {...commonProps}
+        />
+      );
+    }
+
     return (
-      <EnhancedResearchDashboard 
-        userTier={user?.subscription_tier || 'free'}
-        onSearchComplete={(results) => {
-          console.log('Enhanced search completed:', results);
-          // Convert to the format expected by onShowResults
-          const formattedResults = {
-            painPoints: results.results?.painPoints || results.results || [],
-            trendingIdeas: results.results?.trendingIdeas || [],
-            contentIdeas: results.results?.contentIdeas || []
-          };
-          onShowResults(formattedResults, results.metadata?.expandedQuery || '');
-        }}
-        onBack={() => setViewMode('standard')}
-        {...commonProps}
+      <ResearchDashboard
+        onHome={onHome}
+        onContact={onContact}
+        onBlog={onBlog}
+        onLogin={onLogin}
+        onSignUp={onSignUp}
+        onShowResults={onShowResults}
+        onSearchLimitReached={onSearchLimitReached}
+        onSearchPerformed={onSearchPerformed}
+        onSignOut={onSignOut}
+        onPrivacyPolicy={onPrivacyPolicy}
+        onTermsAndConditions={onTermsAndConditions}
+        onPricing={onPricing}
+        user={user}
+        searchCount={searchCount}
       />
     );
-  }
+  };
 
   return (
-    <div>
-      {/* Mode Selection Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="bg-white border-b sticky top-0 z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center space-x-8 py-3">
             <button
@@ -132,22 +147,9 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
         </div>
       </div>
 
-      <ResearchDashboard
-        onHome={onHome}
-        onContact={onContact}
-        onBlog={onBlog}
-        onLogin={onLogin}
-        onSignUp={onSignUp}
-        onShowResults={onShowResults}
-        onSearchLimitReached={onSearchLimitReached}
-        onSearchPerformed={onSearchPerformed}
-        onSignOut={onSignOut}
-        onPrivacyPolicy={onPrivacyPolicy}
-        onTermsAndConditions={onTermsAndConditions}
-        onPricing={onPricing}
-        user={user}
-        searchCount={searchCount}
-      />
+      <div className="flex-grow">
+        {renderDashboard()}
+      </div>
     </div>
   );
 };

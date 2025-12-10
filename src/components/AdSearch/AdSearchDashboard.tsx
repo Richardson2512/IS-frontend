@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Search, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, ArrowRight, Loader2, Sparkles, TrendingUp as Trending, MessageSquare, Lightbulb } from 'lucide-react';
 import { SearchService } from '../../services/searchService';
 import { AdPlatform } from '../../services/apiConfig';
-
 import { Footer } from '../Footer';
+import { PlatformStatsBar } from '../PlatformStatsBar';
+import { SearchHistoryService } from '../../services/searchHistoryService';
 
 interface AdSearchDashboardProps {
-  onBack: () => void;
   userTier?: 'free' | 'standard' | 'pro';
   user: any;
   onHome: () => void;
@@ -19,7 +19,6 @@ interface AdSearchDashboardProps {
 }
 
 export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({ 
-  onBack, 
   userTier = 'free',
   user,
   onHome,
@@ -35,6 +34,9 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [ads, setAds] = useState<any[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<AdPlatform[]>(['facebook', 'google', 'linkedin']);
+  const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
+  const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
+  const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
 
   const adPlatforms: { id: AdPlatform; name: string; icon: string }[] = [
     { id: 'facebook', name: 'Facebook Ads', icon: 'f' },
@@ -69,48 +71,36 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
     );
   };
 
+  useEffect(() => {
+    const fetchPopularKeywords = async () => {
+      setLoadingPopularKeywords(true);
+      try {
+        const keywords = await SearchHistoryService.getPopularKeywords(popularKeywordsPeriod, 10);
+        setPopularKeywords(keywords);
+      } catch (err) {
+        console.error('Error fetching popular keywords:', err);
+        setPopularKeywords([
+          { query: 'ad creatives', count: 0 },
+          { query: 'cpc benchmarks', count: 0 },
+          { query: 'tiktok ads', count: 0 },
+          { query: 'linkedin outreach', count: 0 },
+          { query: 'google shopping', count: 0 }
+        ]);
+      } finally {
+        setLoadingPopularKeywords(false);
+      }
+    };
+
+    fetchPopularKeywords();
+  }, [popularKeywordsPeriod]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">Ad Intelligence</h1>
-              <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                <span>{user?.email}</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs text-white ${
-                  userTier === 'pro' ? 'bg-indigo-600' : 
-                  userTier === 'standard' ? 'bg-blue-500' : 'bg-gray-500'
-                }`}>
-                  {userTier.toUpperCase()}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button onClick={onHome} className="text-gray-600 hover:text-gray-900">Home</button>
-              <button onClick={onContact} className="text-gray-600 hover:text-gray-900">Contact</button>
-              <button onClick={onSignOut} className="text-red-600 hover:text-red-700">Sign Out</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8">
+        <PlatformStatsBar />
 
-      {/* Sub-header for Back button */}
-      <div className="bg-white border-b border-gray-100">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <button
-              onClick={onBack}
-              className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              ← Back to Content Search
-            </button>
-         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Search Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col space-y-4">
             <div className="relative">
               <input
@@ -155,7 +145,7 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
 
         {/* Results */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-8">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
@@ -203,6 +193,91 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
             </div>
           )
         )}
+
+        {/* Trending Searches */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Trending className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-xl font-bold text-gray-900">Trending Searches</h2>
+            </div>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              {(['day', 'week', 'month'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setPopularKeywordsPeriod(period)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                    popularKeywordsPeriod === period
+                      ? 'bg-white text-indigo-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  {period.charAt(0).toUpperCase() + period.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {loadingPopularKeywords ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {popularKeywords.map((keyword, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSearchQuery(keyword.query)}
+                  className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group text-left"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-400">#{index + 1}</span>
+                    <Trending className="w-4 h-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="font-medium text-gray-900 truncate" title={keyword.query}>
+                    {keyword.query}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {keyword.count} searches
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Feature Capsules */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100">
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+              <MessageSquare className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Creative Insights</h3>
+            <p className="text-gray-600">
+              See what hooks and angles perform best across platforms and replicate winning patterns.
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+              <Trending className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Performance Trends</h3>
+            <p className="text-gray-600">
+              Track CPC, CTR, and conversion-friendly copy patterns by network to optimize budgets.
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-2xl border border-green-100">
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+              <Lightbulb className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Audience Ideas</h3>
+            <p className="text-gray-600">
+              Discover audience interests and keywords that align to high-performing ad segments.
+            </p>
+          </div>
+        </div>
       </div>
 
       <Footer 

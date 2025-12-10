@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Search, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, Sparkles, TrendingUp as Trending, MessageSquare, Lightbulb } from 'lucide-react';
 import { SearchService, Subtopic } from '../services/searchService';
 import { QueryExpansionModal } from './QueryExpansionModal';
 import { CategorySelectionModal } from './CategorySelectionModal';
 import ResultsPage from './ResultsPage';
 import { Footer } from './Footer';
+import { PlatformStatsBar } from './PlatformStatsBar';
+import { SearchHistoryService } from '../services/searchHistoryService';
 
 interface EnhancedResearchDashboardProps {
   userTier?: 'free' | 'standard' | 'pro';
   onSearchComplete?: (results: any) => void;
-  onBack: () => void;
   user: any;
   onHome: () => void;
   onContact: () => void;
@@ -23,7 +24,6 @@ interface EnhancedResearchDashboardProps {
 export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps> = ({
   userTier = 'free',
   onSearchComplete,
-  onBack,
   user,
   onHome,
   onContact,
@@ -43,6 +43,9 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
   const [selectedSubtopic, setSelectedSubtopic] = useState<Subtopic | null>(null);
   const [searchResults, setSearchResults] = useState<any>(null);
   const [searchMetadata, setSearchMetadata] = useState<any>(null);
+  const [popularKeywords, setPopularKeywords] = useState<Array<{ query: string; count: number }>>([]);
+  const [popularKeywordsPeriod, setPopularKeywordsPeriod] = useState<'day' | 'week' | 'month'>('week');
+  const [loadingPopularKeywords, setLoadingPopularKeywords] = useState(false);
 
   const handleInitialSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -169,94 +172,69 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
     setError(null);
   };
 
-  const goBack = () => {
-    if (currentStep === 'expansion') {
-      setCurrentStep('search');
-    } else if (currentStep === 'category') {
-      setCurrentStep('expansion');
-    } else if (currentStep === 'results') {
-      setCurrentStep('category');
-    }
-  };
+  useEffect(() => {
+    const fetchPopularKeywords = async () => {
+      setLoadingPopularKeywords(true);
+      try {
+        const keywords = await SearchHistoryService.getPopularKeywords(popularKeywordsPeriod, 10);
+        setPopularKeywords(keywords);
+      } catch (err) {
+        console.error('Error fetching popular keywords:', err);
+        setPopularKeywords([
+          { query: 'audience research', count: 0 },
+          { query: 'pain points', count: 0 },
+          { query: 'trend signals', count: 0 },
+          { query: 'content ideas', count: 0 },
+          { query: 'community insights', count: 0 }
+        ]);
+      } finally {
+        setLoadingPopularKeywords(false);
+      }
+    };
+
+    fetchPopularKeywords();
+  }, [popularKeywordsPeriod]);
 
   if (currentStep === 'results' && searchResults) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Unified Header */}
-        <div className="bg-white shadow-sm border-b sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">Enhanced AI Search</h1>
-                <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  <span>{user?.email}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs text-white ${
-                    userTier === 'pro' ? 'bg-indigo-600' : 
-                    userTier === 'standard' ? 'bg-blue-500' : 'bg-gray-500'
-                  }`}>
-                    {userTier.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button onClick={onHome} className="text-gray-600 hover:text-gray-900">Home</button>
-                <button onClick={onContact} className="text-gray-600 hover:text-gray-900">Contact</button>
-                <button onClick={onSignOut} className="text-red-600 hover:text-red-700">Sign Out</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Sub-header for Back button */}
-        <div className="bg-white border-b border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-            <button
-              onClick={onBack}
-              className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              ← Back to Content Search
-            </button>
-          </div>
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow space-y-6">
+          <PlatformStatsBar />
 
-        <div className="flex-grow">
-          {/* Results Header */}
-          <div className="bg-white shadow-sm border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between py-4">
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={goBack}
-                    className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                    <ArrowLeft className="w-5 h-5 mr-2" />
-                    Back to Category Selection
-                  </button>
-                  <div className="h-6 w-px bg-gray-300" />
-                  <div>
-                    <h1 className="text-lg font-semibold text-gray-900">
-                      Results for "{searchQuery}"
-                    </h1>
-                    <p className="text-sm text-gray-600">
-                      {selectedSubtopic?.title} • {searchMetadata?.category}
-                    </p>
-                  </div>
-                </div>
+          <div className="bg-white shadow-sm border rounded-xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <div className="flex items-center space-x-4">
                 <button
-                  onClick={resetSearch}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  onClick={() => setCurrentStep('category')}
+                  className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  New Search
+                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  Back to Category Selection
                 </button>
+                <div className="h-6 w-px bg-gray-300" />
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-900">
+                    Results for "{searchQuery}"
+                  </h1>
+                  <p className="text-sm text-gray-600">
+                    {selectedSubtopic?.title} • {searchMetadata?.category}
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={resetSearch}
+                className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                New Search
+              </button>
             </div>
+
+            <ResultsPage 
+              results={searchResults}
+              metadata={searchMetadata}
+              searchQuery={searchQuery}
+            />
           </div>
-          
-          <ResultsPage 
-            results={searchResults}
-            metadata={searchMetadata}
-            searchQuery={searchQuery}
-          />
         </div>
 
         <Footer 
@@ -271,46 +249,12 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Unified Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">Enhanced AI Search</h1>
-              <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                <span>{user?.email}</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs text-white ${
-                  userTier === 'pro' ? 'bg-indigo-600' : 
-                  userTier === 'standard' ? 'bg-blue-500' : 'bg-gray-500'
-                }`}>
-                  {userTier.toUpperCase()}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button onClick={onHome} className="text-gray-600 hover:text-gray-900">Home</button>
-              <button onClick={onContact} className="text-gray-600 hover:text-gray-900">Contact</button>
-              <button onClick={onSignOut} className="text-red-600 hover:text-red-700">Sign Out</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Sub-header for Back button */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          <button
-            onClick={onBack}
-            className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            ← Back to Content Search
-          </button>
-        </div>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8">
+        <PlatformStatsBar />
 
-      <div className="max-w-4xl mx-auto px-4 py-12 flex-grow">
+        <div className="max-w-4xl mx-auto px-0 py-0 space-y-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="w-8 h-8 text-blue-600 mr-3" />
             <h1 className="text-4xl font-bold text-gray-900">
@@ -323,7 +267,7 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
         </div>
 
         {/* Search Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="space-y-6">
             {/* Progress Indicator */}
             <div className="flex items-center justify-center space-x-4">
@@ -403,6 +347,91 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Trending Searches */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Trending className="w-5 h-5 text-indigo-600" />
+              <h2 className="text-xl font-bold text-gray-900">Trending Searches</h2>
+            </div>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              {(['day', 'week', 'month'] as const).map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setPopularKeywordsPeriod(period)}
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                    popularKeywordsPeriod === period
+                      ? 'bg-white text-indigo-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  {period.charAt(0).toUpperCase() + period.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {loadingPopularKeywords ? (
+            <div className="flex justify-center py-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {popularKeywords.map((keyword, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSearchQuery(keyword.query)}
+                  className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all group text-left"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-gray-400">#{index + 1}</span>
+                    <Trending className="w-4 h-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="font-medium text-gray-900 truncate" title={keyword.query}>
+                    {keyword.query}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {keyword.count} searches
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Feature Capsules */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100">
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+              <MessageSquare className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Pain Points Analysis</h3>
+            <p className="text-gray-600">
+              Discover what your audience is struggling with. We analyze sentiment and frustration markers to identify high-value problems.
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+              <Trending className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Trend Detection</h3>
+            <p className="text-gray-600">
+              Spot emerging topics before they go mainstream. We track velocity and engagement across multiple platforms.
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-2xl border border-green-100">
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+              <Lightbulb className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Content Ideas</h3>
+            <p className="text-gray-600">
+              Get AI-generated content suggestions based on real user data. Turn insights into viral content instantly.
+            </p>
           </div>
         </div>
 
