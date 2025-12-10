@@ -1,4 +1,4 @@
-import { API_CONFIG, SocialPost } from './apiConfig';
+import { API_CONFIG, SocialPost, getBackendApiUrl } from './apiConfig';
 
 export interface ScriptRequest {
   category: 'painPoints' | 'trendingIdeas' | 'contentIdeas';
@@ -30,7 +30,8 @@ export class ContentGenerationService {
   // Script generation is handled by the backend API using TinyLlama
   private static async callBackendAPI(request: ScriptRequest): Promise<GeneratedScript> {
     try {
-      const response = await fetch(`${this.API_BASE_URL}/script-generation/generate`, {
+      const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+      const response = await fetch(`${apiUrl}/scripts/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -276,7 +277,8 @@ We apologize for the inconvenience!`,
     try {
       console.log('🎬 Generating script via backend API...');
       
-      const response = await fetch(`${this.API_BASE_URL}/scripts/generate`, {
+      const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+      const response = await fetch(`${apiUrl}/scripts/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

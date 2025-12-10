@@ -1,4 +1,4 @@
-import { API_CONFIG } from './apiConfig';
+import { API_CONFIG, getBackendApiUrl } from './apiConfig';
 
 export class NotificationService {
   private static readonly BACKEND_URL = (() => {
@@ -21,10 +21,10 @@ export class NotificationService {
     try {
       console.log('📧 Sending signup notification for:', userData.email);
 
-      // Handle both URL formats: with /api or without
-      const notificationsUrl = this.BACKEND_URL.endsWith('/api')
-        ? `${this.BACKEND_URL}/notifications/signup`
-        : `${this.BACKEND_URL}/api/notifications/signup`;
+      // Note: Notification endpoints are not implemented in backend yet
+      // This will fail silently to not block signup flow
+      const apiUrl = getBackendApiUrl(this.BACKEND_URL);
+      const notificationsUrl = `${apiUrl}/notifications/signup`;
       const response = await fetch(notificationsUrl, {
         method: 'POST',
         headers: {
@@ -60,9 +60,8 @@ export class NotificationService {
    */
   static async testEmailService(): Promise<{ success: boolean; message?: string; error?: string }> {
     try {
-      const testUrl = this.BACKEND_URL.endsWith('/api')
-        ? `${this.BACKEND_URL}/notifications/test`
-        : `${this.BACKEND_URL}/api/notifications/test`;
+      const apiUrl = getBackendApiUrl(this.BACKEND_URL);
+      const testUrl = `${apiUrl}/notifications/test`;
       const response = await fetch(testUrl);
       const result = await response.json();
       
@@ -86,9 +85,8 @@ export class NotificationService {
    */
   static async checkHealth(): Promise<{ configured: boolean; status: string; message?: string }> {
     try {
-      const healthUrl = this.BACKEND_URL.endsWith('/api')
-        ? `${this.BACKEND_URL}/notifications/health`
-        : `${this.BACKEND_URL}/api/notifications/health`;
+      const apiUrl = getBackendApiUrl(this.BACKEND_URL);
+      const healthUrl = `${apiUrl}/notifications/health`;
       const response = await fetch(healthUrl);
       const result = await response.json();
       

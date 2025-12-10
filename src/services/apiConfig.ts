@@ -20,6 +20,30 @@ export const API_CONFIG = {
   }
 };
 
+/**
+ * Get normalized backend API URL
+ * Ensures the URL ends with /api for consistent endpoint construction
+ * @param baseUrl - The base backend URL from environment variable
+ * @returns Normalized URL ending with /api
+ */
+export function getBackendApiUrl(baseUrl: string): string {
+  if (!baseUrl) {
+    throw new Error('Backend URL is required');
+  }
+  
+  const trimmed = baseUrl.trim();
+  
+  // Remove trailing slash
+  const withoutTrailingSlash = trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
+  
+  // Ensure it ends with /api
+  if (withoutTrailingSlash.endsWith('/api')) {
+    return withoutTrailingSlash;
+  }
+  
+  return `${withoutTrailingSlash}/api`;
+}
+
 
 
 export interface SearchParams {

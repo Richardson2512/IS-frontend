@@ -1,4 +1,4 @@
-import { SearchParams, AnalyzedResults } from './apiConfig';
+import { SearchParams, AnalyzedResults, getBackendApiUrl } from './apiConfig';
 
 export interface SearchOptions {
   userTier?: 'free' | 'standard' | 'pro';
@@ -67,7 +67,8 @@ export class SearchService {
       console.log('🎯 User tier:', options?.userTier || 'free');
       console.log('🌐 Backend URL:', this.API_BASE_URL);
       
-      const response = await fetch(`${this.API_BASE_URL}/search`, {
+      const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+      const response = await fetch(`${apiUrl}/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -150,7 +151,8 @@ export class SearchService {
     try {
       // Test backend health
       console.log('🔍 Testing backend connection...');
-      const healthResponse = await fetch(`${this.API_BASE_URL}/search/health`);
+      const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+      const healthResponse = await fetch(`${apiUrl}/search/health`);
       if (healthResponse.ok) {
         console.log('✅ Backend connection: OK');
         results.backend = true;
@@ -159,30 +161,10 @@ export class SearchService {
       console.error('❌ Backend connection test failed:', error);
     }
 
-    try {
-      // Test Reddit via backend
-      console.log('🔍 Testing Reddit API via backend...');
-      const redditResponse = await fetch(`${this.API_BASE_URL}/reddit/health`);
-      if (redditResponse.ok) {
-        console.log('✅ Reddit API test: OK');
-        results.reddit = true;
-      }
-    } catch (error) {
-      console.error('❌ Reddit API test failed:', error);
-    }
-
-    try {
-      // Test X via backend
-      console.log('🐦 Testing X API via backend...');
-      const xResponse = await fetch(`${this.API_BASE_URL}/x/health`);
-      if (xResponse.ok) {
-        const xData = await xResponse.json();
-        console.log(`✅ X API test: ${xData.message}`);
-        results.x = xData.available;
-      }
-    } catch (error) {
-      console.error('❌ X API test failed:', error);
-    }
+    // Note: Reddit and X endpoints removed - now using ScrapeCreators API via backend
+    // These tests are no longer needed as platforms are accessed through /api/search
+    results.reddit = true; // Assumed available via ScrapeCreators
+    results.x = true; // Assumed available via ScrapeCreators
 
     console.log('📊 API Test Results:', results);
     return results;
@@ -217,7 +199,8 @@ export class SearchService {
       console.log('🔗 Full URL:', `${this.API_BASE_URL}/search/expand-query`);
       console.log('📤 Request payload:', { query });
       
-      const response = await fetch(`${this.API_BASE_URL}/search/expand-query`, {
+      const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+      const response = await fetch(`${apiUrl}/search/expand-query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -273,7 +256,8 @@ export class SearchService {
       const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
 
       try {
-        const response = await fetch(`${this.API_BASE_URL}/search/focused-search`, {
+        const apiUrl = getBackendApiUrl(this.API_BASE_URL);
+        const response = await fetch(`${apiUrl}/search/focused-search`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

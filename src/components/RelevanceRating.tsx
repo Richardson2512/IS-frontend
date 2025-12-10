@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getBackendApiUrl } from '../services/apiConfig';
 
 interface RelevanceRatingProps {
   postId: string;
@@ -38,9 +39,7 @@ const RelevanceRating: React.FC<RelevanceRatingProps> = ({
         setIsSubmitting(false);
         return;
       }
-      const apiUrl = backendUrl.endsWith('/api') 
-        ? `${backendUrl}/ratings/submit`
-        : `${backendUrl}/api/ratings/submit`;
+      const apiUrl = `${getBackendApiUrl(backendUrl)}/ratings/submit`;
       console.log('Submitting rating to:', apiUrl);
       console.log('Rating data:', { searchQuery, postId, platform, rating: newRating, userId });
 

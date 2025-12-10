@@ -4,6 +4,8 @@
  * Uses backend API for secure payment processing
  */
 
+import { getBackendApiUrl } from './apiConfig';
+
 const BACKEND_API_URL = (() => {
   const url = import.meta.env.VITE_BACKEND_URL;
   if (!url) {
@@ -102,17 +104,9 @@ export class PaymentService {
 
       console.log(`🔐 Creating payment session for ${plan.displayName} plan...`);
 
-      // Normalize backend URL - remove trailing /api if present, then add /api/payments
-      let baseUrl = this.backendUrl.trim();
-      if (baseUrl.endsWith('/api')) {
-        baseUrl = baseUrl.slice(0, -4); // Remove trailing '/api'
-      }
-      // Remove trailing slash if present
-      if (baseUrl.endsWith('/')) {
-        baseUrl = baseUrl.slice(0, -1);
-      }
-      
-      const paymentsUrl = `${baseUrl}/api/payments/create-checkout`;
+      // Use standardized API URL handling
+      const apiUrl = getBackendApiUrl(this.backendUrl);
+      const paymentsUrl = `${apiUrl}/payments/create-checkout`;
       console.log(`🔗 Payment API URL: ${paymentsUrl}`);
       
       const requestBody = {
