@@ -118,12 +118,15 @@ const AuthCallback: React.FC<AuthCallbackProps> = ({ onAuthComplete }) => {
               console.log('✅ User data extracted via Supabase session:', userData);
               
               // Send admin notification for Google signup (don't block auth flow)
-              NotificationService.notifyNewSignup({
-                email: userData.email,
-                name: userData.name,
-                subscription_tier: 'free',
-                signup_method: 'google'
-              }).catch(err => console.error('Failed to send signup notification:', err));
+              // Use setTimeout to ensure it doesn't block rendering
+              setTimeout(() => {
+                NotificationService.notifyNewSignup({
+                  email: userData.email,
+                  name: userData.name,
+                  subscription_tier: 'free',
+                  signup_method: 'google'
+                }).catch(err => console.error('Failed to send signup notification:', err));
+              }, 0);
               
               console.log('🚀 Calling onAuthComplete...');
               onAuthComplete(userData);

@@ -23,31 +23,36 @@ export class NotificationService {
 
       // Note: Notification endpoints are not implemented in backend yet
       // This will fail silently to not block signup flow
-      const apiUrl = getBackendApiUrl(this.BACKEND_URL);
-      const notificationsUrl = `${apiUrl}/notifications/signup`;
-      const response = await fetch(notificationsUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: userData.email,
-          name: userData.name || userData.email.split('@')[0],
-          subscription_tier: userData.subscription_tier || 'free',
-          signup_method: userData.signup_method || 'email'
-        })
-      });
+      try {
+        const apiUrl = getBackendApiUrl(this.BACKEND_URL);
+        const notificationsUrl = `${apiUrl}/notifications/signup`;
+        const response = await fetch(notificationsUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: userData.email,
+            name: userData.name || userData.email.split('@')[0],
+            subscription_tier: userData.subscription_tier || 'free',
+            signup_method: userData.signup_method || 'email'
+          })
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (result.success) {
-        console.log('✅ Signup notification sent successfully');
-        return { success: true, message: 'Notification sent' };
-      } else {
-        console.warn('⚠️ Signup notification failed:', result.message);
-        return { success: false, error: result.message };
+        if (result.success) {
+          console.log('✅ Signup notification sent successfully');
+          return { success: true, message: 'Notification sent' };
+        } else {
+          console.warn('⚠️ Signup notification failed:', result.message);
+          return { success: false, error: result.message };
+        }
+      } catch (urlError: any) {
+        // If URL construction or fetch fails, just return success false without throwing
+        console.warn('⚠️ Failed to send signup notification (service unavailable):', urlError.message);
+        return { success: false, error: 'Notification service unavailable' };
       }
-
     } catch (error: any) {
       console.error('❌ Failed to send signup notification:', error);
       // Don't throw error - signup should succeed even if notification fails

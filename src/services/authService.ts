@@ -69,14 +69,16 @@ export class AuthService {
         }
 
         // Send admin notification (don't block signup if this fails)
-        try {
-          await NotificationService.notifyNewSignup({
-            email: data.user.email || '',
-            name: name,
-            subscription_tier: 'free',
-            signup_method: 'email'
-          })
-        } catch (notifError) {
+        // Defer to next tick to avoid blocking
+        setTimeout(async () => {
+          try {
+            await NotificationService.notifyNewSignup({
+              email: data.user.email || '',
+              name: name,
+              subscription_tier: 'free',
+              signup_method: 'email'
+            })
+          } catch (notifError) {
           console.error('Failed to send signup notification:', notifError)
           // Don't throw - signup should succeed even if notification fails
         }
