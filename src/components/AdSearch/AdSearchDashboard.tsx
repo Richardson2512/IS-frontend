@@ -12,6 +12,8 @@ interface AdSearchDashboardProps {
   onHome: () => void;
   onContact: () => void;
   onSignOut: () => void;
+  onLogin: () => void;
+  onSignUp: () => void;
   onBlog: () => void;
   onPrivacyPolicy: () => void;
   onTermsAndConditions: () => void;
@@ -24,6 +26,8 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
   onHome,
   onContact,
   onSignOut,
+  onLogin,
+  onSignUp,
   onBlog,
   onPrivacyPolicy,
   onTermsAndConditions,
@@ -96,6 +100,44 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-2xl font-bold text-gray-900">Ad Intelligence</h1>
+              {user && (
+                <div className="flex items-center space-x-2 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  <span>{user?.email}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs text-white ${
+                    userTier === 'pro' ? 'bg-indigo-600' : 
+                    userTier === 'standard' ? 'bg-blue-500' : 'bg-gray-500'
+                  }`}>
+                    {userTier?.toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center space-x-3">
+              <button onClick={onHome} className="text-gray-600 hover:text-gray-900">Home</button>
+              <button onClick={onContact} className="text-gray-600 hover:text-gray-900">Contact</button>
+              {user ? (
+                <button onClick={onSignOut} className="text-red-600 hover:text-red-700">Sign Out</button>
+              ) : (
+                <>
+                  <button onClick={onLogin} className="text-gray-600 hover:text-gray-900">Log In</button>
+                  <button
+                    onClick={onSignUp}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8">
         <PlatformStatsBar />
 
