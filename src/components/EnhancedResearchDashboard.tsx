@@ -97,18 +97,35 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
       );
 
       if (searchResponse.success) {
-        setSearchResults(searchResponse.data.results);
+        // Normalize backend posts into the AnalyzedResults shape expected by ResultsPage
+        const normalized = (searchResponse.data.results || []).map((post: any, idx: number) => ({
+          id: post.id || post._id || `post-${idx}`,
+          content: post.content || post.text || post.title || '',
+          platform: post.platform || 'reddit',
+          source: post.source || post.url || '',
+          engagement: post.engagement || 0,
+          timestamp: post.timestamp || post.created_at || new Date().toISOString(),
+          url: post.url
+        }));
+
+        const formattedResults = {
+          painPoints: normalized,
+          trendingIdeas: [],
+          contentIdeas: []
+        };
+
+        setSearchResults(formattedResults);
         setSearchMetadata(searchResponse.data.metadata);
         setCurrentStep('results');
         console.log('✅ Focused search complete:', {
-          results: searchResponse.data.results.length,
+          results: formattedResults.painPoints.length,
           relevance: searchResponse.data.metadata.relevanceScore
         });
         
         // Call the callback if provided
         if (onSearchComplete) {
           onSearchComplete({
-            results: searchResponse.data.results,
+            results: formattedResults,
             metadata: searchResponse.data.metadata
           });
         }
