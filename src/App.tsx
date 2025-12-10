@@ -186,8 +186,7 @@ function App() {
           path === '/auth/callback' || 
           hash.includes('access_token') || 
           hash.includes('refresh_token') ||
-          hash.includes('type=signup') ||
-          currentUrl.includes('@https://') // Handle the @ prefix case
+          hash.includes('type=signup')
         );
         
         console.log('🔍 Auth callback check:', {
@@ -196,8 +195,7 @@ function App() {
           isAuthCallback,
           hasAccessToken: hash.includes('access_token'),
           hasRefreshToken: hash.includes('refresh_token'),
-          hasTypeSignup: hash.includes('type=signup'),
-          hasAtPrefix: currentUrl.includes('@https://')
+          hasTypeSignup: hash.includes('type=signup')
         });
         
         if (isAuthCallback) {
