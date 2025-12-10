@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Loader2, ArrowLeft, Sparkles, TrendingUp as Trending, MessageSquare, Lightbulb } from 'lucide-react';
 import { SearchService, Subtopic } from '../services/searchService';
 import { QueryExpansionModal } from './QueryExpansionModal';
@@ -454,6 +454,14 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
         />
       </div>
 
+      <Footer 
+        onContact={onContact}
+        onBlog={onBlog}
+        onPrivacyPolicy={onPrivacyPolicy}
+        onTermsAndConditions={onTermsAndConditions}
+      />
+      </div>
+      
       <Footer 
         onContact={onContact}
         onBlog={onBlog}
