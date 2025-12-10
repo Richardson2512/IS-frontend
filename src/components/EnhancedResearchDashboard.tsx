@@ -4,12 +4,10 @@ import { SearchService, Subtopic } from '../services/searchService';
 import { QueryExpansionModal } from './QueryExpansionModal';
 import { CategorySelectionModal } from './CategorySelectionModal';
 import ResultsPage from './ResultsPage';
-import { Footer } from './Footer';
 import { PlatformStatsBar } from './PlatformStatsBar';
 import { SearchHistoryService } from '../services/searchHistoryService';
 
 interface EnhancedResearchDashboardProps {
-  userTier?: 'free' | 'standard' | 'pro';
   onSearchComplete?: (results: any) => void;
   user: any;
   onHome: () => void;
@@ -18,11 +16,12 @@ interface EnhancedResearchDashboardProps {
   onBlog: () => void;
   onPrivacyPolicy: () => void;
   onTermsAndConditions: () => void;
+  onLogin: () => void;
+  onSignUp: () => void;
   searchCount?: number;
 }
 
 export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps> = ({
-  userTier = 'free',
   onSearchComplete,
   user,
   onHome,
@@ -31,7 +30,8 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
   onBlog,
   onPrivacyPolicy,
   onTermsAndConditions,
-  searchCount
+  onLogin,
+  onSignUp
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -229,20 +229,23 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
               </button>
             </div>
 
-            <ResultsPage 
-              results={searchResults}
-              metadata={searchMetadata}
-              searchQuery={searchQuery}
-            />
+          <ResultsPage 
+            results={searchResults}
+            metadata={searchMetadata}
+            searchQuery={searchQuery}
+            onBack={() => setCurrentStep('category')}
+            onHome={onHome}
+            onContact={onContact}
+            onBlog={onBlog}
+            onLogin={onLogin}
+            onSignUp={onSignUp}
+            onPrivacyPolicy={onPrivacyPolicy}
+            onTermsAndConditions={onTermsAndConditions}
+            user={user}
+            onSignOut={onSignOut}
+          />
           </div>
         </div>
-
-        <Footer 
-          onContact={onContact}
-          onBlog={onBlog}
-          onPrivacyPolicy={onPrivacyPolicy}
-          onTermsAndConditions={onTermsAndConditions}
-        />
       </div>
     );
   }
@@ -253,18 +256,18 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
         <PlatformStatsBar />
 
         <div className="max-w-4xl mx-auto px-0 py-0 space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="w-8 h-8 text-blue-600 mr-3" />
-            <h1 className="text-4xl font-bold text-gray-900">
-              Enhanced Research Dashboard
-            </h1>
+          {/* Header */}
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Sparkles className="w-8 h-8 text-blue-600 mr-3" />
+              <h1 className="text-4xl font-bold text-gray-900">
+                Enhanced Research Dashboard
+              </h1>
+            </div>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Get precise, relevant insights with our AI-powered multi-step search process
+            </p>
           </div>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Get precise, relevant insights with our AI-powered multi-step search process
-          </p>
-        </div>
 
         {/* Search Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -450,24 +453,14 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
           isOpen={currentStep === 'category'}
           onClose={() => setCurrentStep('expansion')}
           selectedSubtopic={selectedSubtopic!}
-          onSelectCategory={handleCategorySelection}
+          onSelectCategory={(categories) => {
+            if (categories && categories.length > 0) {
+              handleCategorySelection(categories[0]);
+            }
+          }}
         />
+        </div>
       </div>
-
-      <Footer 
-        onContact={onContact}
-        onBlog={onBlog}
-        onPrivacyPolicy={onPrivacyPolicy}
-        onTermsAndConditions={onTermsAndConditions}
-      />
-      </div>
-      
-      <Footer 
-        onContact={onContact}
-        onBlog={onBlog}
-        onPrivacyPolicy={onPrivacyPolicy}
-        onTermsAndConditions={onTermsAndConditions}
-      />
     </div>
   );
 };
