@@ -439,7 +439,7 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                 <li>• Enter your search query or topic of interest</li>
                 <li>• We search across multiple social media platforms simultaneously</li>
                 <li>• AI analyzes and categorizes posts into pain points, trending ideas, and content ideas</li>
-                <li>• Get actionable insights with relevant posts from Reddit, YouTube, TikTok, Instagram, and more</li>
+                <li>• Get actionable insights with relevant posts from Reddit, X (Twitter), YouTube, TikTok, Instagram, Threads, Pinterest, and Google</li>
               </ul>
             </div>
 

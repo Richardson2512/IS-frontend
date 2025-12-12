@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, TrendingUp, MessageSquare, Lightbulb, Check, Star, ArrowRight, Twitter, Youtube, Instagram, Facebook, Mail, Sparkles } from 'lucide-react';
 import { MetaPixelService } from '../services/metaPixelService';
+import { StatsService, PlatformStats } from '../services/statsService';
 import PaymentCheckoutModal from './PaymentCheckoutModal';
 
 interface User {
@@ -27,9 +28,31 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSignUp, onContact, onPrivacyPolicy, onTermsAndConditions, onBlog, onPricing, user, onSignOut }) => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro'>('standard');
+  const [platformStats, setPlatformStats] = useState<PlatformStats>({
+    totalSearches: 0,
+    totalAuthUsers: 0,
+    registeredUsers: 0,
+    searchesToday: 0,
+    topKeywords: []
+  });
 
   useEffect(() => {
     MetaPixelService.trackPageView('home');
+  }, []);
+
+  // Fetch and subscribe to real-time platform stats
+  useEffect(() => {
+    const loadStats = async () => {
+      const stats = await StatsService.getPlatformStats();
+      setPlatformStats(stats);
+    };
+    loadStats();
+    
+    const unsubscribe = StatsService.subscribeToStatsUpdates((newStats) => {
+      setPlatformStats(newStats);
+    });
+    
+    return () => unsubscribe();
   }, []);
 
   const handleLogoClick = () => {
@@ -55,7 +78,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
     {
       icon: <Search className="w-6 h-6" />,
       title: "Multi-Platform Analysis",
-      description: "Comprehensive real-time insights from Reddit subreddits, X posts, and YouTube comments in one place."
+      description: "Comprehensive real-time insights from Reddit, X (Twitter), YouTube, TikTok, Instagram, Threads, Pinterest, and Google in one place."
     }
   ];
 
@@ -227,7 +250,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               Uncover pain points, trending ideas, and content opportunities from millions of 
-              conversations across Reddit, X, and YouTube in real-time. Create content that truly resonates.
+              conversations across Reddit, X (Twitter), YouTube, TikTok, Instagram, Threads, Pinterest, and Google in real-time. Create content that truly resonates.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <button
@@ -242,12 +265,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600 mb-2">1M+</div>
-                <div className="text-gray-600">Discussions Analyzed</div>
+                <div className="text-3xl font-bold text-indigo-600 mb-2">
+                  {platformStats.totalSearches > 0 ? platformStats.totalSearches.toLocaleString() : '...'}
+                </div>
+                <div className="text-gray-600">Keywords Searched</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600 mb-2">50K+</div>
-                <div className="text-gray-600">Content Creators</div>
+                <div className="text-3xl font-bold text-indigo-600 mb-2">
+                  {platformStats.totalAuthUsers > 0 ? platformStats.totalAuthUsers.toLocaleString() : '...'}
+                </div>
+                <div className="text-gray-600">Total Users</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-indigo-600 mb-2">300%</div>

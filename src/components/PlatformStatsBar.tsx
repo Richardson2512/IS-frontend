@@ -46,7 +46,7 @@ export const PlatformStatsBar: React.FC = () => {
           AI-Powered Social Media Insights
         </h2>
         <p className="text-gray-600 max-w-3xl mx-auto">
-          Discover what your audience really wants by analyzing real conversations from Reddit, X (Twitter), and YouTube. 
+          Discover what your audience really wants by analyzing real conversations from Reddit, X (Twitter), YouTube, TikTok, Instagram, Threads, Pinterest, and Google. 
           Get instant insights into pain points, trending ideas, and content opportunities.
         </p>
       </div>
