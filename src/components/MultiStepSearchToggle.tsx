@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Search, MonitorPlay } from 'lucide-react';
 import { EnhancedResearchDashboard } from './EnhancedResearchDashboard';
 import ResearchDashboard from './ResearchDashboard';
