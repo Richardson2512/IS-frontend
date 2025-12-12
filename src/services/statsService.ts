@@ -14,6 +14,22 @@ export class StatsService {
    */
   static async getPlatformStats(): Promise<PlatformStats> {
     try {
+      // Preferred: use RPC that returns global stats (bypasses RLS safely)
+      try {
+        const { data: statsData, error: statsError } = await supabase.rpc('get_platform_stats');
+        if (!statsError && statsData) {
+          return {
+            totalSearches: statsData.totalSearches || 0,
+            totalAuthUsers: statsData.totalAuthUsers || 0,
+            registeredUsers: statsData.totalAuthUsers || 0, // best-effort; real registered users not provided by RPC
+            searchesToday: statsData.searchesToday || 0,
+            topKeywords: Array.isArray(statsData.topKeywords) ? statsData.topKeywords : []
+          };
+        }
+      } catch {
+        // ignore and fall back
+      }
+
       // Get total searches count
       const { count: totalSearches } = await supabase
         .from('search_history')
@@ -141,9 +157,15 @@ export class StatsService {
       )
       .subscribe();
 
+    // Fallback: refresh periodically in case realtime is blocked by RLS/replication settings
+    const intervalId = setInterval(() => {
+      this.getPlatformStats().then(callback);
+    }, 30000);
+
     // Return unsubscribe function
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(intervalId);
     };
   }
 }
