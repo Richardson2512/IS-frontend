@@ -427,6 +427,17 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               onSearchLimitReached={onSearchLimitReached}
               onSearchPerformed={onSearchPerformed}
             />
+
+            {/* How it works */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-medium text-blue-900 mb-2">💡 How it works:</h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Enter your search query or topic of interest</li>
+                <li>• We search across multiple social media platforms simultaneously</li>
+                <li>• AI analyzes and categorizes posts into pain points, trending ideas, and content ideas</li>
+                <li>• Get actionable insights with relevant posts from Reddit, YouTube, TikTok, Instagram, and more</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

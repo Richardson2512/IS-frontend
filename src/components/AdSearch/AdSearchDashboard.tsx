@@ -175,6 +175,17 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ArrowRight className="w-5 h-5" />}
               </button>
             </div>
+
+            {/* How it works */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-medium text-blue-900 mb-2">💡 How it works:</h3>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Enter keywords related to products, services, or industries you want to research</li>
+                <li>• We search ad libraries across Facebook, LinkedIn, Google, Reddit, and TikTok Shop</li>
+                <li>• Discover competitor ad strategies, creative approaches, and messaging tactics</li>
+                <li>• Analyze what's working in your industry and get inspiration for your own campaigns</li>
+              </ul>
+            </div>
           </div>
         </div>
 
