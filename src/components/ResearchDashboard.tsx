@@ -359,7 +359,7 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Search Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+      <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
@@ -395,16 +395,6 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                 )}
               </div>
             </div>
-
-            <FilterBar
-              platforms={platforms}
-              selectedPlatforms={selectedPlatforms}
-              onTogglePlatform={handlePlatformToggle}
-              language={selectedLanguage}
-              onLanguageChange={setSelectedLanguage}
-              timeFilter={timeFilter}
-              onTimeFilterChange={setTimeFilter}
-            />
 
             <FilterBar
               platforms={platforms}
