@@ -242,8 +242,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
 
       {/* Bug bounty banner */}
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <p className="text-sm text-amber-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
+          <p className="text-sm text-amber-900 text-center">
             <strong>🐛 Bug bounty:</strong> Find <strong>3 bugs</strong> → get a <strong>50% off coupon</strong> for <strong>Standard</strong>. Find <strong>5 bugs</strong> → get a <strong>50% off coupon</strong> for <strong>Pro</strong>.
           </p>
           <button
@@ -259,7 +259,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
               }
               onContact();
             }}
-            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700 transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700 transition-colors whitespace-nowrap"
           >
             Report a bug
           </button>
