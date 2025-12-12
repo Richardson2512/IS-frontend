@@ -15,14 +15,17 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({ userTier, onPricin
   const isFree = userTier === 'free';
   const benefits = isFree
     ? [
-        'Unlimited searches per day',
+        'Content Research + Ad Intelligence + Enhanced AI Search',
+        'Unlimited searches (all features)',
         '15 results per category (5 per platform)',
         'Unlimited AI script generations',
         'Auto-translation support',
-        'Priority support'
+        'Priority support',
+        'Trend alerts'
       ]
     : [
-        'Unlimited searches per day',
+        'Enhanced AI Search access',
+        'Unlimited searches (all features)',
         '15 results per category (5 per platform)',
         'Unlimited AI script generations',
         'Auto-translation support',

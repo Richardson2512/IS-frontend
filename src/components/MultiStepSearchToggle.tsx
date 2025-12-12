@@ -111,6 +111,19 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
     );
   };
 
+  const userTier = user?.subscription_tier || 'free';
+  const canAccessAdIntelligence = userTier === 'standard' || userTier === 'pro';
+  const canAccessEnhancedAI = userTier === 'pro';
+
+  // Reset to accessible view if current view is not accessible
+  useEffect(() => {
+    if (viewMode === 'ads' && !canAccessAdIntelligence) {
+      setViewMode('standard');
+    } else if (viewMode === 'enhanced' && !canAccessEnhancedAI) {
+      setViewMode('standard');
+    }
+  }, [viewMode, canAccessAdIntelligence, canAccessEnhancedAI]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="bg-white border-b sticky top-0 z-20">
@@ -127,21 +140,39 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
             </button>
             <button
               onClick={() => setViewMode('ads')}
+              disabled={!canAccessAdIntelligence}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === 'ads' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
+                !canAccessAdIntelligence 
+                  ? 'opacity-50 cursor-not-allowed text-gray-400' 
+                  : viewMode === 'ads' 
+                    ? 'bg-indigo-50 text-indigo-700' 
+                    : 'text-gray-600 hover:bg-gray-50'
               }`}
+              title={!canAccessAdIntelligence ? 'Upgrade to Standard or Pro to access Ad Intelligence' : ''}
             >
               <MonitorPlay className="w-4 h-4" />
               <span className="font-medium">Ad Intelligence</span>
+              {!canAccessAdIntelligence && (
+                <span className="ml-1 text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Pro</span>
+              )}
             </button>
             <button
               onClick={() => setViewMode('enhanced')}
+              disabled={!canAccessEnhancedAI}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === 'enhanced' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'
+                !canAccessEnhancedAI 
+                  ? 'opacity-50 cursor-not-allowed text-gray-400' 
+                  : viewMode === 'enhanced' 
+                    ? 'bg-indigo-50 text-indigo-700' 
+                    : 'text-gray-600 hover:bg-gray-50'
               }`}
+              title={!canAccessEnhancedAI ? 'Upgrade to Pro to access Enhanced AI Search' : ''}
             >
               <Sparkles className="w-4 h-4" />
               <span className="font-medium">Enhanced AI Search</span>
+              {!canAccessEnhancedAI && (
+                <span className="ml-1 text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">Pro</span>
+              )}
             </button>
           </div>
         </div>

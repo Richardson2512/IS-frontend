@@ -211,13 +211,17 @@ export class AuthService {
         console.warn('⚠️ Could not fetch current search count from Supabase, using 0');
       }
       
-      // Check if we need to reset the count (24 hours have passed)
+      // Check if we need to reset the count
+      // Get user tier to determine reset period
+      const userTier = await this.getSubscriptionTier(userId);
+      const isMonthly = userTier === 'free'; // Free users: monthly reset, others: daily reset
       const now = new Date();
-      const shouldReset = this.shouldResetSearchCount(lastResetDate);
+      const shouldReset = this.shouldResetSearchCount(lastResetDate, isMonthly);
       
-      // Reset count if 24 hours have passed
+      // Reset count if period has passed
       if (shouldReset) {
-        console.log(`🔄 Resetting search count for user ${userId} - 24 hours have passed`);
+        const resetPeriod = isMonthly ? 'month' : '24 hours';
+        console.log(`🔄 Resetting search count for user ${userId} - ${resetPeriod} has passed`);
         currentCount = 0;
         lastResetDate = now.toISOString();
       }
@@ -267,11 +271,15 @@ export class AuthService {
       
       if (!error && profile) {
         const lastResetDate = profile.last_reset_date;
-        const shouldReset = this.shouldResetSearchCount(lastResetDate);
+        // Get user tier to determine reset period
+        const userTier = await this.getSubscriptionTier(userId);
+        const isMonthly = userTier === 'free';
+        const shouldReset = this.shouldResetSearchCount(lastResetDate, isMonthly);
         
         if (shouldReset && profile.search_count > 0) {
-          // Reset count in Supabase if 24 hours have passed
-          console.log(`🔄 Resetting search count for user ${userId} - 24 hours have passed`);
+          // Reset count in Supabase if period has passed
+          const resetPeriod = isMonthly ? 'month' : '24 hours';
+          console.log(`🔄 Resetting search count for user ${userId} - ${resetPeriod} has passed`);
           const now = new Date();
           
           await supabase
@@ -312,16 +320,22 @@ export class AuthService {
   }
 
   // Helper function to check if 24 hours have passed since last reset
-  private static shouldResetSearchCount(lastResetDate: string | null): boolean {
+  private static shouldResetSearchCount(lastResetDate: string | null, isMonthly: boolean = false): boolean {
     if (!lastResetDate) return true;
     
     try {
       const lastReset = new Date(lastResetDate);
       const now = new Date();
-      const hoursSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60);
       
-      // Reset if 24 hours or more have passed
-      return hoursSinceReset >= 24;
+      if (isMonthly) {
+        // For monthly reset (free users): check if a month has passed
+        const monthsSinceReset = (now.getFullYear() - lastReset.getFullYear()) * 12 + (now.getMonth() - lastReset.getMonth());
+        return monthsSinceReset >= 1;
+      } else {
+        // For daily reset (standard users): check if 24 hours have passed
+        const hoursSinceReset = (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60);
+        return hoursSinceReset >= 24;
+      }
     } catch (error) {
       console.error('Error checking reset time:', error);
       return true; // Reset on error to be safe
@@ -365,12 +379,21 @@ export class AuthService {
   // Use SearchHistoryService.trackSearch() and SearchHistoryService.getUserSearchHistory() instead
 
   // Check if user has reached search limit
-  static async checkSearchLimit(userId: string, tier: 'free' | 'standard' | 'pro' = 'free') {
+  static async checkSearchLimit(userId: string, tier: 'free' | 'standard' | 'pro' = 'free', searchType: 'content' | 'ad' = 'content') {
     try {
+      // Pro users have unlimited searches
+      if (tier === 'pro') {
+        return { 
+          hasReachedLimit: false, 
+          currentCount: 0, 
+          limit: 999999,
+          error: null 
+        }
+      }
+
       const limits = {
-        free: 5,
-        standard: 50,
-        pro: 999999 // Unlimited
+        free: 25, // 25 searches per month for content research only
+        standard: 25 // 25 searches per day per feature (content research or ad intelligence)
       }
 
       const { data: profile, error } = await supabase
@@ -381,12 +404,29 @@ export class AuthService {
 
       if (error) throw error
 
-      const limit = limits[tier]
-      const hasReachedLimit = profile.search_count >= limit
+      // Check if we need to reset based on tier
+      const isMonthly = tier === 'free';
+      const shouldReset = this.shouldResetSearchCount(profile.last_reset_date, isMonthly);
+      
+      let currentCount = profile.search_count || 0;
+      if (shouldReset) {
+        currentCount = 0;
+        // Reset in database
+        await supabase
+          .from('users')
+          .update({ 
+            search_count: 0,
+            last_reset_date: new Date().toISOString()
+          })
+          .eq('id', userId);
+      }
+
+      const limit = limits[tier as keyof typeof limits] || 25;
+      const hasReachedLimit = currentCount >= limit
 
       return { 
         hasReachedLimit, 
-        currentCount: profile.search_count, 
+        currentCount, 
         limit,
         error: null 
       }

@@ -222,7 +222,7 @@ export class SearchService {
     const limits = tierLimits[userTier as keyof typeof tierLimits] || tierLimits.free;
     
     return {
-      maxSearches: userTier === 'free' ? 5 : userTier === 'standard' ? 50 : 999999,
+      maxSearches: userTier === 'free' ? 25 : userTier === 'standard' ? 25 : 999999, // Free: 25/month, Standard: 25/day per feature, Pro: unlimited
       resultsPerCategory: limits.totalPerCategory,
       perPlatform: limits.perPlatform,
       tierLimits: limits

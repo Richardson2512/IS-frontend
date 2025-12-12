@@ -66,7 +66,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
       period: "forever",
       description: "Perfect for getting started",
       features: [
-        "5 searches per day",
+        "Content Research only",
+        "25 searches per month",
         "3 AI script generations (lifetime)",
         "Real-time insights",
         "3 exports to CSV/PDF per month",
@@ -83,7 +84,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
       period: "month",
       description: "For growing creators",
       features: [
-        "50 searches per day",
+        "Content Research + Ad Intelligence",
+        "25 searches per day (Content Research)",
+        "25 searches per day (Ad Intelligence)",
         "25 AI script generations per day",
         "Time period filtering",
         "9 results per category (3 per platform)",
@@ -100,7 +103,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onSign
       period: "month",
       description: "For serious content creators",
       features: [
-        "Unlimited searches",
+        "Content Research + Ad Intelligence + Enhanced AI Search",
+        "Unlimited searches (all features)",
         "Unlimited AI script generations",
         "Advanced time filtering",
         "15 results per category (5 per platform)",
