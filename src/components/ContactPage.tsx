@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Send, CheckCircle, Twitter, Youtube, Instagram, Facebook } from 'lucide-react';
+import { Mail, Send, CheckCircle, Twitter, Youtube, Instagram, Facebook, Paperclip, X } from 'lucide-react';
 import { MetaPixelService } from '../services/metaPixelService';
 
 interface User {
@@ -36,6 +36,55 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [screenshots, setScreenshots] = useState<File[]>([]);
+  const [screenshotPreviews, setScreenshotPreviews] = useState<string[]>([]);
+
+  // Prefill issue report when coming from the Landing Page "Report a bug" banner
+  useEffect(() => {
+    try {
+      const prefillType = sessionStorage.getItem('contactPrefillType') as 'feedback' | 'issue' | null;
+      const prefillMessage = sessionStorage.getItem('contactPrefillMessage');
+
+      if (prefillType) {
+        setFormData(prev => ({
+          ...prev,
+          type: prefillType
+        }));
+      }
+
+      if (prefillMessage) {
+        setFormData(prev => ({
+          ...prev,
+          type: prefillType || prev.type,
+          message: prefillMessage
+        }));
+      }
+
+      sessionStorage.removeItem('contactPrefillType');
+      sessionStorage.removeItem('contactPrefillMessage');
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Prefill name/email for logged-in users if empty
+  useEffect(() => {
+    if (!user) return;
+    setFormData(prev => ({
+      ...prev,
+      name: prev.name || user.name || '',
+      email: prev.email || user.email || ''
+    }));
+  }, [user]);
+
+  // Generate preview URLs for screenshots
+  useEffect(() => {
+    const urls = screenshots.map(file => URL.createObjectURL(file));
+    setScreenshotPreviews(urls);
+    return () => {
+      urls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [screenshots]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -50,6 +99,27 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
       ...prev,
       type
     }));
+
+    // Clear screenshots when switching away from issue
+    if (type !== 'issue') {
+      setScreenshots([]);
+    }
+  };
+
+  const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    // Only allow images and up to 5 screenshots
+    const imageFiles = files.filter(f => f.type.startsWith('image/'));
+    setScreenshots(prev => [...prev, ...imageFiles].slice(0, 5));
+
+    // Reset input so the same file can be re-selected if needed
+    e.target.value = '';
+  };
+
+  const removeScreenshot = (index: number) => {
+    setScreenshots(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,8 +131,15 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
         ? 'User feedback' 
         : 'Issue report from User';
 
+      const screenshotsBlock =
+        formData.type === 'issue' && screenshots.length > 0
+          ? `\n\nScreenshots selected (${screenshots.length}):\n${screenshots
+              .map((file, idx) => `${idx + 1}. ${file.name} (${Math.round(file.size / 1024)} KB)`)
+              .join('\n')}\n\nNote: Please attach these screenshots to the email before sending.`
+          : '';
+
       const mailtoLink = `mailto:contact@insightsnap.co?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-        `Name: ${formData.name}\nEmail: ${formData.email}\nType: ${formData.type}\n\nMessage:\n${formData.message}`
+        `Name: ${formData.name}\nEmail: ${formData.email}\nType: ${formData.type}\n\nMessage:\n${formData.message}${screenshotsBlock}`
       )}`;
 
       window.location.href = mailtoLink;
@@ -70,6 +147,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
       // Show success message
       setIsSubmitted(true);
       setFormData({ name: '', email: '', type: 'feedback', message: '' });
+      setScreenshots([]);
       
       // Reset success message after 5 seconds
       setTimeout(() => setIsSubmitted(false), 5000);
@@ -266,6 +344,60 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
                   placeholder="Tell us more about your feedback or issue..."
                 />
               </div>
+
+              {/* Screenshot Upload (Issue Reports Only) */}
+              {formData.type === 'issue' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Screenshots (optional)
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Attach up to <strong>5</strong> screenshots (PNG/JPG/WebP). When you click “Send Message”, your email app will open—please attach the selected screenshots to the email before sending.
+                  </p>
+
+                  <div className="flex items-center gap-3">
+                    <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer text-sm font-medium text-gray-700">
+                      <Paperclip className="w-4 h-4" />
+                      Add screenshots
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleScreenshotChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <span className="text-xs text-gray-500">
+                      {screenshots.length}/5 selected
+                    </span>
+                  </div>
+
+                  {screenshots.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {screenshots.map((file, idx) => (
+                        <div key={`${file.name}-${idx}`} className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                          <img
+                            src={screenshotPreviews[idx]}
+                            alt={file.name}
+                            className="w-full h-24 object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeScreenshot(idx)}
+                            className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 hover:bg-black/75 transition-colors"
+                            aria-label={`Remove screenshot ${file.name}`}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                          <div className="px-2 py-2 text-xs text-gray-700 truncate" title={file.name}>
+                            {file.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Submit Button */}
               <button

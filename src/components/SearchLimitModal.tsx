@@ -21,8 +21,8 @@ const SearchLimitModal: React.FC<SearchLimitModalProps> = ({
   if (!isOpen) return null;
 
   const limits = {
-    free: 5,
-    standard: 50,
+    free: 25,
+    standard: 25,
     pro: 999999
   };
 
@@ -50,7 +50,7 @@ const SearchLimitModal: React.FC<SearchLimitModalProps> = ({
           {!isLoggedIn ? (
             <>
               <p className="text-gray-600 mb-4">
-                You've reached your limit of 5 searches. Sign up to get 5 searches per day for free!
+                You've reached your limit of 5 searches. Log in or sign up to unlock 25 searches per month on the Free plan.
               </p>
               <p className="text-gray-900 font-medium mb-4">
                 Create a free account to continue searching
@@ -58,7 +58,9 @@ const SearchLimitModal: React.FC<SearchLimitModalProps> = ({
             </>
           ) : (
             <p className="text-gray-600 mb-4">
-              You've reached your daily limit of {currentLimit} searches.
+              {userTier === 'free'
+                ? `You've reached your monthly limit of ${currentLimit} searches.`
+                : `You've reached your daily limit of ${currentLimit} searches for this feature.`}
             </p>
           )}
           
@@ -67,9 +69,10 @@ const SearchLimitModal: React.FC<SearchLimitModalProps> = ({
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h3 className="font-semibold text-gray-900 mb-2">Free Account Benefits</h3>
                 <ul className="text-sm text-gray-600 space-y-1 ml-4 list-disc">
-                  <li>5 searches per day (resets every 24 hours)</li>
+                  <li>25 searches per month (Content Research)</li>
+                  <li>Content Research access</li>
                   <li>3 AI script generations (lifetime)</li>
-                  <li>AI-powered insights from Reddit & X</li>
+                  <li>AI-powered insights across multiple platforms</li>
                   <li>No credit card required</li>
                 </ul>
               </div>
@@ -102,18 +105,21 @@ const SearchLimitModal: React.FC<SearchLimitModalProps> = ({
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <div className="space-y-3">
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Standard Plan - $6.99/month</h3>
+                    <h3 className="font-semibold text-gray-900 mb-2">Standard Plan - $9.99/month</h3>
                     <ul className="text-sm text-gray-600 space-y-1 ml-4 list-disc">
-                      <li>50 searches per day</li>
+                      <li>Content Research + Ad Intelligence</li>
+                      <li>25 searches/day (Content Research)</li>
+                      <li>25 searches/day (Ad Intelligence)</li>
                       <li>Time period filtering</li>
                       <li>30 exports to CSV/PDF per month</li>
                       <li><span className="text-blue-600 font-medium">🎁 7-day FREE trial</span></li>
                     </ul>
                   </div>
                   <div className="pt-2 border-t border-blue-200">
-                    <h3 className="font-semibold text-gray-900 mb-2">Pro Plan - $14.99/month</h3>
+                    <h3 className="font-semibold text-gray-900 mb-2">Pro Plan - $19.99/month</h3>
                     <ul className="text-sm text-gray-600 space-y-1 ml-4 list-disc">
-                      <li>Unlimited searches</li>
+                      <li>Content Research + Ad Intelligence + Enhanced AI Search</li>
+                      <li>Unlimited searches (all features)</li>
                       <li>Advanced time filtering</li>
                       <li>Auto-translation & Priority support</li>
                       <li><span className="text-blue-600 font-medium">🎁 7-day FREE trial (for Standard users)</span></li>
@@ -150,9 +156,10 @@ const SearchLimitModal: React.FC<SearchLimitModalProps> = ({
               </p>
               
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h3 className="font-semibold text-gray-900 mb-2">Pro Plan - $14.99/month</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">Pro Plan - $19.99/month</h3>
                 <ul className="text-sm text-gray-600 space-y-1 ml-4 list-disc">
-                  <li>Unlimited searches</li>
+                  <li>Content Research + Ad Intelligence + Enhanced AI Search</li>
+                  <li>Unlimited searches (all features)</li>
                   <li>Advanced time filtering</li>
                   <li>Auto-translation</li>
                   <li>Priority support & Trend alerts</li>

@@ -66,8 +66,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, onClose, onTierUpdated })
       color: 'bg-gray-500',
       borderColor: 'border-gray-500',
       hoverColor: 'hover:bg-gray-600',
-      features: ['5 searches per day', 'Basic insights', 'Reddit & X data'],
-      limit: '5 searches/day'
+      features: ['Content Research only', '25 searches per month', 'Basic insights'],
+      limit: '25 searches/month'
     },
     {
       id: 'standard' as const,
@@ -76,9 +76,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, onClose, onTierUpdated })
       color: 'bg-blue-500',
       borderColor: 'border-blue-500',
       hoverColor: 'hover:bg-blue-600',
-      features: ['50 searches per day', 'Advanced filtering', 'Export to CSV/PDF', '7-day free trial'],
-      limit: '50 searches/day',
-      price: '$6.99/month'
+      features: [
+        'Content Research + Ad Intelligence',
+        '25 searches/day (Content Research)',
+        '25 searches/day (Ad Intelligence)',
+        'Advanced filtering',
+        'Export to CSV/PDF',
+        '7-day free trial'
+      ],
+      limit: '25 searches/day per feature',
+      price: '$9.99/month'
     },
     {
       id: 'pro' as const,
@@ -87,9 +94,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user, onClose, onTierUpdated })
       color: 'bg-gradient-to-r from-purple-500 to-pink-500',
       borderColor: 'border-purple-500',
       hoverColor: 'hover:from-purple-600 hover:to-pink-600',
-      features: ['Unlimited searches', 'Priority support', 'Auto-translation', 'Trend alerts'],
+      features: ['All features (Enhanced AI Search)', 'Unlimited searches', 'Priority support', 'Auto-translation', 'Trend alerts'],
       limit: 'Unlimited',
-      price: '$14.99/month'
+      price: '$19.99/month'
     }
   ];
 

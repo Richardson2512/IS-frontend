@@ -167,9 +167,9 @@ const TermsAndConditions: React.FC<TermsAndConditionsProps> = ({ onHome, onConta
               <div className="mb-4">
                 <h3 className="text-xl font-medium text-gray-900 mb-3">4.1 Subscription Tiers</h3>
                 <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                  <li><strong>Free Plan:</strong> 5 searches per day, basic features</li>
-                  <li><strong>Standard Plan ($6.99/month):</strong> 50 searches per day, time period filtering, 30 exports per month</li>
-                  <li><strong>Pro Plan ($14.99/month):</strong> Unlimited searches, advanced features, priority support</li>
+                  <li><strong>Free Plan:</strong> Content Research only, 25 searches per month</li>
+                  <li><strong>Standard Plan ($9.99/month):</strong> Content Research + Ad Intelligence, 25 searches per day per feature</li>
+                  <li><strong>Pro Plan ($19.99/month):</strong> Content Research + Ad Intelligence + Enhanced AI Search, unlimited searches</li>
                 </ul>
               </div>
               <div className="mb-4">
