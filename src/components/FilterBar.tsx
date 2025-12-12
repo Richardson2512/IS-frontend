@@ -30,6 +30,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const [openPlatform, setOpenPlatform] = useState(false);
   const [openLang, setOpenLang] = useState(false);
   const [openTime, setOpenTime] = useState(false);
+  const [brokenLogos, setBrokenLogos] = useState<Record<string, boolean>>({});
   
   // Refs for dropdown containers
   const platformRef = useRef<HTMLDivElement>(null);
@@ -97,11 +98,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     : 'hover:bg-gray-50 text-gray-700'
                 }`}
               >
-                {p.logo ? (
-                  <img src={p.logo} alt={p.name} className="w-5 h-5 rounded" />
-                ) : p.icon ? (
+                {p.icon ? (
                   p.icon
-                ) : null}
+                ) : p.logo && !brokenLogos[p.id] ? (
+                  <img
+                    src={p.logo}
+                    alt={p.name}
+                    className="w-5 h-5 rounded"
+                    onError={() => setBrokenLogos(prev => ({ ...prev, [p.id]: true }))}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="w-5 h-5 rounded bg-gray-100 text-gray-600 flex items-center justify-center text-[10px] font-semibold">
+                    {p.name?.charAt(0)?.toUpperCase() || '?'}
+                  </span>
+                )}
                 <span>{p.name}</span>
               </button>
             ))}

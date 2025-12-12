@@ -5,7 +5,7 @@ import {
   Lightbulb, 
   ExternalLink, 
   Twitter, 
-  Youtube, 
+  Youtube,
   Calendar, 
   Globe, 
   Keyboard, 
@@ -20,7 +20,8 @@ import {
   Circle,
   Video,
   Image,
-  Search
+  Search,
+  AtSign
 } from 'lucide-react';
 import { SearchService, SearchResponse } from '../services/searchService';
 import { SearchParams, AnalyzedResults, SocialPost } from '../services/apiConfig';
@@ -148,13 +149,13 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
     { 
       id: 'reddit', 
       name: 'Reddit', 
-      logo: 'https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png',
+      icon: <MessageSquare className="w-5 h-5 text-orange-600" />,
       available: true 
     },
     { 
       id: 'youtube', 
       name: 'YouTube', 
-      logo: 'https://www.youtube.com/s/desktop/favicon_48x48.png',
+      icon: <Youtube className="w-5 h-5 text-red-600" />,
       available: true 
     },
     { 
@@ -172,7 +173,7 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
     { 
       id: 'threads', 
       name: 'Threads', 
-      logo: 'https://static.xx.fbcdn.net/rsrc.php/yb/r/hLRJ1GG_y0J.ico',
+      icon: <AtSign className="w-5 h-5 text-gray-900" />,
       available: true 
     },
     { 
