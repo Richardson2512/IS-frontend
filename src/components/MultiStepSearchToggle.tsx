@@ -153,7 +153,7 @@ export const MultiStepSearchToggle: React.FC<MultiStepSearchToggleProps> = ({
               <MonitorPlay className="w-4 h-4" />
               <span className="font-medium">Ad Intelligence</span>
               {!canAccessAdIntelligence && (
-                <span className="ml-1 text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Pro</span>
+                <span className="ml-1 text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">Standard</span>
               )}
             </button>
             <button

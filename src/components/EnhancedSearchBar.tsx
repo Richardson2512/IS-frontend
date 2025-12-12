@@ -15,6 +15,7 @@ interface EnhancedSearchBarProps {
   onSearchQueryChange?: (query: string) => void; // Add callback for query changes
   searchCount?: number;
   maxSearches?: number;
+  isAnonymous?: boolean;
   onShowResults?: (results: any, query: string) => void;
   onSearchLimitReached?: () => void;
 }
@@ -29,6 +30,7 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
   onSearchQueryChange,
   searchCount,
   maxSearches,
+  isAnonymous = false,
   onSearchLimitReached
 }) => {
   // Multi-step search state - Define all state first
@@ -276,7 +278,11 @@ export const EnhancedSearchBar: React.FC<EnhancedSearchBarProps> = ({
                  ? 'bg-red-100 text-red-800' 
                  : 'bg-indigo-50 text-indigo-700'
              }`}>
-               Daily Searches: {searchCount} / {maxSearches}
+               {isAnonymous 
+                 ? `Searches: ${searchCount} / ${maxSearches}` 
+                 : userTier === 'free' 
+                   ? `Monthly Searches: ${searchCount} / ${maxSearches}`
+                   : `Daily Searches: ${searchCount} / ${maxSearches}`}
              </span>
           )}
         </div>

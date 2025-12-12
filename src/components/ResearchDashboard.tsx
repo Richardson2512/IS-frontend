@@ -116,6 +116,8 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
 
   const userTier = user?.subscription_tier || 'free';
   const tierLimits = SearchService.getTierLimits(userTier);
+  // Anonymous users get 5 searches total (not 25)
+  const maxSearches = user ? tierLimits.maxSearches : 5;
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -423,7 +425,8 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               isLoading={isLoading}
               userTier={userTier}
               searchCount={searchCount}
-              maxSearches={tierLimits.maxSearches}
+              maxSearches={maxSearches}
+              isAnonymous={!user}
               onShowResults={onShowResults}
               onSearchLimitReached={onSearchLimitReached}
               onSearchPerformed={onSearchPerformed}
