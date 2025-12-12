@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Send, CheckCircle, Twitter, Youtube, Instagram, Facebook, Paperclip, X } from 'lucide-react';
 import { MetaPixelService } from '../services/metaPixelService';
+import { getBackendApiUrl } from '../services/apiConfig';
 
 interface User {
   id: string;
@@ -36,8 +37,18 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [screenshots, setScreenshots] = useState<File[]>([]);
   const [screenshotPreviews, setScreenshotPreviews] = useState<string[]>([]);
+
+  const buildMessageWithScreenshots = (baseMessage: string, files: File[]) => {
+    // Remove existing screenshots block (if present)
+    const stripped = baseMessage.replace(/\n\n---\nScreenshots:[\s\S]*?\n---\n?$/m, '');
+    if (files.length === 0) return stripped;
+
+    const list = files.map(f => `- ${f.name}`).join('\n');
+    return `${stripped}\n\n---\nScreenshots:\n${list}\n---`;
+  };
 
   // Prefill issue report when coming from the Landing Page "Report a bug" banner
   useEffect(() => {
@@ -86,6 +97,16 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
     };
   }, [screenshots]);
 
+  // Keep screenshot list reflected in the message textbox (Issue reports only)
+  useEffect(() => {
+    if (formData.type !== 'issue') return;
+    setFormData(prev => ({
+      ...prev,
+      message: buildMessageWithScreenshots(prev.message, screenshots)
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screenshots, formData.type]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -125,24 +146,37 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
     try {
-      const subject = formData.type === 'feedback' 
-        ? 'User feedback' 
-        : 'Issue report from User';
+      // Send to backend so screenshots are delivered without opening email client
+      const backendBase = import.meta.env.VITE_BACKEND_URL as string | undefined;
+      if (!backendBase) {
+        throw new Error('VITE_BACKEND_URL is not set. Please configure it for bug report uploads.');
+      }
 
-      const screenshotsBlock =
-        formData.type === 'issue' && screenshots.length > 0
-          ? `\n\nScreenshots selected (${screenshots.length}):\n${screenshots
-              .map((file, idx) => `${idx + 1}. ${file.name} (${Math.round(file.size / 1024)} KB)`)
-              .join('\n')}\n\nNote: Please attach these screenshots to the email before sending.`
-          : '';
+      const apiUrl = getBackendApiUrl(backendBase);
+      const endpoint = `${apiUrl}/support/contact`;
 
-      const mailtoLink = `mailto:contact@insightsnap.co?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-        `Name: ${formData.name}\nEmail: ${formData.email}\nType: ${formData.type}\n\nMessage:\n${formData.message}${screenshotsBlock}`
-      )}`;
+      const body = new FormData();
+      body.append('name', formData.name);
+      body.append('email', formData.email);
+      body.append('type', formData.type);
+      body.append('message', formData.message);
 
-      window.location.href = mailtoLink;
+      if (formData.type === 'issue' && screenshots.length > 0) {
+        screenshots.forEach(file => body.append('screenshots', file));
+      }
+
+      const resp = await fetch(endpoint, {
+        method: 'POST',
+        body
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || data?.success === false) {
+        throw new Error(data?.message || data?.error || `Failed to submit (${resp.status})`);
+      }
       
       // Show success message
       setIsSubmitted(true);
@@ -153,6 +187,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
       setTimeout(() => setIsSubmitted(false), 5000);
     } catch (error) {
       console.error('Error submitting form:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -253,6 +288,12 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
           
+          {submitError && (
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 text-red-800 text-sm">
+              {submitError}
+            </div>
+          )}
+
           {isSubmitted ? (
             <div className="text-center py-12">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -352,7 +393,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onHome, onLogin, onSignUp, on
                     Screenshots (optional)
                   </label>
                   <p className="text-xs text-gray-500 mb-3">
-                    Attach up to <strong>5</strong> screenshots (PNG/JPG/WebP). When you click “Send Message”, your email app will open—please attach the selected screenshots to the email before sending.
+                    Attach up to <strong>5</strong> screenshots (PNG/JPG/WebP). Screenshots will be submitted along with your report (no email app will open).
                   </p>
 
                   <div className="flex items-center gap-3">
