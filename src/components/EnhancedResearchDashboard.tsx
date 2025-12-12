@@ -426,7 +426,7 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleInitialSearch()}
                   placeholder="What would you like to research? (e.g., 'Sales engagement', 'Plant disease', 'Marketing automation')"
-                  className="w-full px-6 py-4 text-lg border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-6 pr-36 py-4 text-lg border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={isLoading || currentStep !== 'search'}
                 />
                 <button
