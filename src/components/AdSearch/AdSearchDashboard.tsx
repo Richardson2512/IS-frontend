@@ -6,6 +6,7 @@ import { Footer } from '../Footer';
 import { PlatformStatsBar } from '../PlatformStatsBar';
 import { SearchHistoryService } from '../../services/searchHistoryService';
 import { FilterBar } from '../FilterBar';
+import { UpgradePrompt } from '../UpgradePrompt';
 
 interface AdSearchDashboardProps {
   userTier?: 'free' | 'standard' | 'pro';
@@ -18,6 +19,7 @@ interface AdSearchDashboardProps {
   onBlog: () => void;
   onPrivacyPolicy: () => void;
   onTermsAndConditions: () => void;
+  onPricing?: () => void;
   searchCount?: number;
 }
 
@@ -32,6 +34,7 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
   onBlog,
   onPrivacyPolicy,
   onTermsAndConditions,
+  onPricing,
   searchCount
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -186,6 +189,11 @@ export const AdSearchDashboard: React.FC<AdSearchDashboardProps> = ({
                 <li>• Analyze what's working in your industry and get inspiration for your own campaigns</li>
               </ul>
             </div>
+
+            {/* Upgrade Prompt for Free and Standard Users */}
+            {user && onPricing && (userTier === 'free' || userTier === 'standard') && (
+              <UpgradePrompt userTier={userTier} onPricing={onPricing} />
+            )}
           </div>
         </div>
 

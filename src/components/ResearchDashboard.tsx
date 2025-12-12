@@ -30,6 +30,7 @@ import { EnhancedSearchBar } from './EnhancedSearchBar';
 import { PlatformStatsBar } from './PlatformStatsBar';
 import { Footer } from './Footer';
 import { FilterBar } from './FilterBar';
+import { UpgradePrompt } from './UpgradePrompt';
 
 interface ResearchDashboardProps {
   onHome: () => void;
@@ -438,6 +439,11 @@ const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                 <li>• Get actionable insights with relevant posts from Reddit, YouTube, TikTok, Instagram, and more</li>
               </ul>
             </div>
+
+            {/* Upgrade Prompt for Free and Standard Users */}
+            {user && (userTier === 'free' || userTier === 'standard') && (
+              <UpgradePrompt userTier={userTier} onPricing={onPricing} />
+            )}
           </div>
         </div>
       </div>

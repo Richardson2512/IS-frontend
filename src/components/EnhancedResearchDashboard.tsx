@@ -8,6 +8,7 @@ import { PlatformStatsBar } from './PlatformStatsBar';
 import { SearchHistoryService } from '../services/searchHistoryService';
 import { FilterBar } from './FilterBar';
 import { Footer } from './Footer';
+import { UpgradePrompt } from './UpgradePrompt';
 
 interface EnhancedResearchDashboardProps {
   onSearchComplete?: (results: any) => void;
@@ -20,6 +21,7 @@ interface EnhancedResearchDashboardProps {
   onTermsAndConditions: () => void;
   onLogin: () => void;
   onSignUp: () => void;
+  onPricing?: () => void;
   searchCount?: number;
 }
 
@@ -33,7 +35,8 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
   onPrivacyPolicy,
   onTermsAndConditions,
   onLogin,
-  onSignUp
+  onSignUp,
+  onPricing
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -469,6 +472,11 @@ export const EnhancedResearchDashboard: React.FC<EnhancedResearchDashboardProps>
                     <li>• Get highly relevant, filtered results</li>
                   </ul>
                 </div>
+              )}
+
+              {/* Upgrade Prompt for Free and Standard Users */}
+              {currentStep === 'search' && user && onPricing && (user?.subscription_tier === 'free' || user?.subscription_tier === 'standard') && (
+                <UpgradePrompt userTier={user.subscription_tier} onPricing={onPricing} />
               )}
             </div>
           </div>
